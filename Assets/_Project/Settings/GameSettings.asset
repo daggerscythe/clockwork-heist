@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87ab40c1271b5c94e971d925f8862d8a, type: 3}
+  m_Name: GameSettings
+  m_EditorClassIdentifier: Assembly-CSharp::GameSettings
+  playerWalkSpeed: 3
+  playerCrouchSpeed: 2
+  playerSprintSpeed: 5
+  playerMaxHealth: 100
+  capsuleRadius: 0.35
+  capsuleHeight: 1.8
+  crouchCapsuleHeight: 1.1
+  blinkMaxDistance: 15
+  blinkCooldown: 3
+  aimTimeScale: 0.1
+  throwSpeed: 14
+  projectileGravity: 9.81
+  stuckGadgetDespawnSeconds: 300
+  wheelTimeScale: 0.1
+  visionConeAngle: 60
+  visionMaxDistance: 15
+  enemyWalkSpeed: 2
+  enemyRunSpeed: 5
+  enemyMaxHealth: 100
+  enemyHitDamage: 20
+  enemyAttackRange: 1.5
+  enemyAttackInterval: 1
+  confusionTime: 5
+  alertShoutRadius: 12
+  bodySearchTime: 10
+  wakeSearchTime: 5
+  detectTimeClose: 0.5
+  detectTimeFar: 1.5
+  closeDistance: 5
+  darkTimeMultiplier: 2
+  crouchTimeMultiplier: 1.5
+  sprintTimeMultiplier: 0.7
+  meterDrainPerSecond: 1
+  noiseCrouch: 0
+  noiseWalk: 4
+  noiseSprint: 10
+  noiseBodyDrop: 3
+  decoySoundRadius: 12
+  decoyConfusionTime: 4
+  cameraConeAngle: 60
+  cameraRange: 12
+  cameraAlertRadius: 20
+  hackMemorizeTime: 3
+  hackSolveTime: 12
+  hackDifferences: 3
+  hackRetryDelay: 10
+  bladeDamage: 25
+  takedownRange: 1.5
+  clubSwingTime: 0.4
+  weaponSwitchTime: 0.3
+  knockoutDuration: 60
+  pickpocketHoldTime: 1.5
+  dartRange: 20
+  dartMissNoiseRadius: 4
+  lostSightTime: 5
+  alarmPullTime: 1.5
