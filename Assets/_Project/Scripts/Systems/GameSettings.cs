@@ -12,6 +12,9 @@ public class GameSettings : ScriptableObject
     public float capsuleRadius = 0.35f; // m
     public float capsuleHeight = 1.8f; // m
     public float crouchCapsuleHeight = 1.1f; // m
+    public float lookSensitivity = 0.1f;
+    public float airAcceleration = 4f; // m/s^2
+    public float jumpHeight = 1f; // m
 
     [Header("Teleport (Blink)")]
     public float blinkMaxDistance = 15f; // m
