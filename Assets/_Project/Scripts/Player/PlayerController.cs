@@ -32,6 +32,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // input shared with the other player scripts
+    public PlayerControls Controls => controls;
+
     // set up the capsule from the settings
     private void Awake()
     {
@@ -153,5 +156,16 @@ public class PlayerController : MonoBehaviour
         controller.height = height;
         controller.center = new Vector3(0f, height / 2f, 0f);
         cameraTransform.localPosition = new Vector3(0f, height - EyeBelowTop, 0f);
+    }
+
+    // moves the player instantly and drops all momentum
+    public void TeleportTo(Vector3 position)
+    {
+        // the controller would snap the player back if it stayed on
+        controller.enabled = false;
+        transform.position = position;
+        controller.enabled = true;
+        horizontalVelocity = Vector3.zero;
+        verticalVelocity = 0f;
     }
 }
