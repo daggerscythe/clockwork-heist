@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
     private const float EyeBelowTop = 0.2f; // m from top of head to the eyes
     private const float CrouchBlendSpeed = 8f; // m/s of height change
     private const float GroundedPull = -2f; // keeps player on ground
+    private const float LeanSpeed = 5f; // full leans per s so one lean takes 0.2 s
+    private const float CameraRadius = 0.15f; // m kept between the leaning camera and walls
 
     private CharacterController controller;
     private PlayerControls controls;
@@ -18,9 +20,15 @@ public class PlayerController : MonoBehaviour
     private float verticalVelocity; // m/s
     private float pitch;
     private float currentHeight;
+    private bool isLeaning; // true while the lean key is held
+    private float lean; // -1 full left 0 upright 1 full right
+    private int cameraMask; // walls the leaning camera stops at
 
     public bool IsCrouching { get; private set; }
     public bool IsSprinting { get; private set; }
+
+    // set while the player has a body on their shoulder
+    public bool IsCarrying { get; set; }
 
     // true when player moving along the ground
     public bool IsMoving
@@ -42,6 +50,7 @@ public class PlayerController : MonoBehaviour
         controls = new PlayerControls();
         controller.radius = settings.capsuleRadius;
         currentHeight = settings.capsuleHeight;
+        cameraMask = ~LayerMask.GetMask("Player", "LightVolume", "Ignore Raycast");
         ApplyHeight(currentHeight);
     }
 
@@ -70,11 +79,14 @@ public class PlayerController : MonoBehaviour
         Cursor.visible = false;
     }
 
+    // look then crouch and lean then move and place the camera last
     private void Update()
     {
         Look();
         UpdateCrouch();
+        UpdateLean();
         Move();
+        PlaceCamera();
     }
 
     // mouse look
@@ -85,9 +97,8 @@ public class PlayerController : MonoBehaviour
         // turn the body left and right
         transform.Rotate(0f, delta.x, 0f);
 
-        // tilt the camera up and down and stop at the limit
+        // tilt up and down and stop at the limit and the camera gets it in place camera
         pitch = Mathf.Clamp(pitch - delta.y, -MaxLookAngle, MaxLookAngle);
-        cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
     }
 
     // crouch while the key is held and stay crouched if something is above
@@ -102,17 +113,32 @@ public class PlayerController : MonoBehaviour
         ApplyHeight(currentHeight);
     }
 
+    // hold the lean key and press a or d to lean without moving the feet
+    private void UpdateLean()
+    {
+        isLeaning = controls.Player.Lean.IsPressed();
+        float side = controls.Player.Move.ReadValue<Vector2>().x;
+
+        float target = 0f;
+        if (isLeaning && side > 0.1f) target = 1f;
+        else if (isLeaning && side < -0.1f) target = -1f;
+
+        // leaning is part of looking so slow motion never slows it
+        lean = Mathf.MoveTowards(lean, target, LeanSpeed * Time.unscaledDeltaTime);
+    }
+
     // walking, sprinting, jumping and gravity
     private void Move()
     {
-        Vector2 input = controls.Player.Move.ReadValue<Vector2>();
+        // leaning plants the feet so a and d only lean
+        Vector2 input = isLeaning ? Vector2.zero : controls.Player.Move.ReadValue<Vector2>();
 
-        // sprint only works while moving and not crouched
-        IsSprinting = controls.Player.Run.IsPressed() && !IsCrouching && input.sqrMagnitude > 0.01f;
+        // sprint only works while moving and not crouched or carrying
+        IsSprinting = controls.Player.Run.IsPressed() && !IsCrouching && !IsCarrying && input.sqrMagnitude > 0.01f;
 
-        // pick the speed for the current state
+        // pick the speed for the current state and carrying a body is as slow as crouching
         float speed = settings.playerWalkSpeed;
-        if (IsCrouching) speed = settings.playerCrouchSpeed;
+        if (IsCrouching || IsCarrying) speed = settings.playerCrouchSpeed;
         else if (IsSprinting) speed = settings.playerSprintSpeed;
 
         // build the direction from the input and cap it so diagonals are not faster
@@ -140,6 +166,22 @@ public class PlayerController : MonoBehaviour
         controller.Move(motion * Time.deltaTime);
     }
 
+    // puts the camera at eye height then slides and tilts it for the lean
+    private void PlaceCamera()
+    {
+        Vector3 eye = new Vector3(0f, currentHeight - EyeBelowTop, 0f);
+        float direction = Mathf.Sign(lean);
+        float reach = Mathf.Abs(lean) * settings.leanDistance;
+
+        // stop short of walls so the camera never pokes through to the other side
+        Vector3 side = transform.right * direction;
+        if (reach > 0f && Physics.SphereCast(transform.TransformPoint(eye), CameraRadius, side, out RaycastHit hit, reach, cameraMask, QueryTriggerInteraction.Ignore))
+            reach = hit.distance;
+
+        cameraTransform.localPosition = eye + Vector3.right * direction * reach;
+        cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, -lean * settings.leanAngle);
+    }
+
     // checks the space above with the standing capsule
     private bool CanStandUp()
     {
@@ -150,12 +192,11 @@ public class PlayerController : MonoBehaviour
         return !Physics.CheckCapsule(bottom, top, radius, mask, QueryTriggerInteraction.Ignore);
     }
 
-    // sets the capsule height and keeps the camera near the top of the head
+    // sets the capsule height and keeps it standing on the floor
     private void ApplyHeight(float height)
     {
         controller.height = height;
         controller.center = new Vector3(0f, height / 2f, 0f);
-        cameraTransform.localPosition = new Vector3(0f, height - EyeBelowTop, 0f);
     }
 
     // moves the player instantly and drops all momentum

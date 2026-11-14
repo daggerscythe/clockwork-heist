@@ -20,8 +20,9 @@ public class EnemyAI : MonoBehaviour
     private int pointIndex;
     private bool isWaiting;
     private float waitUntil; // game time when the guard walks on
+    private bool onAlert; // true when the guard knows something is wrong so it chases the player at first sight
+    private float searchDuration; // s the next or current look around lasts
     private float searchEndTime; // game time when looking around stops
-    private bool lostPlayer; // true when the search started because the player got away
     private float nextAttackTime; // game time the next hit can land
     private Vector3 postPosition; // where the guard was placed
     private Quaternion postRotation; // which way the guard was placed facing
@@ -49,12 +50,15 @@ public class EnemyAI : MonoBehaviour
         StartPatrol();
     }
 
-    // check for the player first then run the current state
+    // check for the player and bodies first then run the current state
     private void Update()
     {
-        // a full meter alerts any guard and a guard that lost the player re-alerts on sight
-        bool spotted = senses.Detection >= 1f || (state == State.Confused && lostPlayer && senses.SeesPlayer);
+        // a full meter alerts any guard and a guard on alert chases at first sight
+        bool spotted = senses.Detection >= 1f || (onAlert && senses.SeesPlayer);
         if (state != State.Alerted && spotted) StartAlert();
+
+        // a body nobody hid raises the alarm unless the guard is already chasing
+        if (state != State.Alerted && senses.NewBody != null) ReactToBody(senses.NewBody.transform.position);
 
         switch (state)
         {
@@ -65,18 +69,27 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // a noise or a shout sends any guard that is not chasing to check the spot
+    // a noise or a shout sends a guard that is awake and not chasing to check the spot
     public void Investigate(Vector3 point)
     {
-        if (state == State.Alerted) return;
+        if (!enabled || state == State.Alerted) return;
         state = State.Suspicious;
+        searchDuration = settings.confusionTime;
         MoveTo(point, settings.enemyWalkSpeed);
     }
 
-    // go back to the route or the post
+    // gets up calm and looks around before going back to the routine
+    public void WakeUp()
+    {
+        onAlert = false;
+        StartSearch(settings.wakeSearchTime);
+    }
+
+    // go back to the route or the post and calm down
     private void StartPatrol()
     {
         state = State.Patrol;
+        onAlert = false;
         isWaiting = false;
         Vector3 target = patrolPoints.Length > 0 ? patrolPoints[pointIndex].position : postPosition;
         MoveTo(target, settings.enemyWalkSpeed);
@@ -109,30 +122,41 @@ public class EnemyAI : MonoBehaviour
         MoveTo(patrolPoints[pointIndex].position, settings.enemyWalkSpeed);
     }
 
-    // walk to the noise then look around there
+    // walk to the noise or run to the body then look around there
     private void Suspicious()
     {
-        if (Arrived()) StartSearch(false);
+        if (Arrived()) StartSearch(searchDuration);
+    }
+
+    // a body puts the guard on alert so it shouts runs over and searches around it
+    private void ReactToBody(Vector3 point)
+    {
+        onAlert = true;
+        Shout(point);
+        state = State.Suspicious;
+        searchDuration = settings.bodySearchTime;
+        MoveTo(point, settings.enemyRunSpeed);
     }
 
     // shout to nearby guards and start the chase
     private void StartAlert()
     {
         state = State.Alerted;
+        onAlert = true;
         agent.isStopped = false;
         agent.speed = settings.enemyRunSpeed;
         nextAttackTime = Time.time + settings.enemyAttackInterval;
-        Shout();
+        Shout(senses.LastSeenPosition);
     }
 
-    // nearby guards come to check where the player was seen but still need to spot the player themselves
-    private void Shout()
+    // nearby guards come to check the point but still need to spot the player themselves
+    private void Shout(Vector3 point)
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, settings.alertShoutRadius, enemyMask, QueryTriggerInteraction.Ignore);
         foreach (Collider hit in hits)
         {
             EnemyAI guard = hit.GetComponentInParent<EnemyAI>();
-            if (guard != null && guard != this) guard.Investigate(senses.LastSeenPosition);
+            if (guard != null && guard != this) guard.Investigate(point);
         }
     }
 
@@ -145,7 +169,7 @@ public class EnemyAI : MonoBehaviour
         {
             // the path already leads to the last seen spot so just keep going and search there
             agent.isStopped = false;
-            if (Arrived()) StartSearch(true);
+            if (Arrived()) StartSearch(settings.confusionTime);
             return;
         }
 
@@ -169,18 +193,18 @@ public class EnemyAI : MonoBehaviour
     }
 
     // stop and look around for a while
-    private void StartSearch(bool afterChase)
+    private void StartSearch(float duration)
     {
         state = State.Confused;
-        lostPlayer = afterChase;
+        searchDuration = duration;
+        searchEndTime = Time.time + duration;
         agent.ResetPath();
-        searchEndTime = Time.time + settings.confusionTime;
     }
 
     // turn one full circle over the search time then go back to the routine
     private void Confused()
     {
-        transform.Rotate(0f, 360f / settings.confusionTime * Time.deltaTime, 0f);
+        transform.Rotate(0f, 360f / searchDuration * Time.deltaTime, 0f);
         if (Time.time >= searchEndTime) StartPatrol();
     }
 

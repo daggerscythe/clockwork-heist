@@ -15,6 +15,8 @@ public class GameSettings : ScriptableObject
     public float lookSensitivity = 0.1f;
     public float airAcceleration = 4f; // m/s^2
     public float jumpHeight = 1f; // m
+    public float leanDistance = 0.5f; // m the camera slides sideways
+    public float leanAngle = 10f; // degrees the camera tilts
 
     [Header("Teleport (Blink)")]
     public float blinkMaxDistance = 15f; // m
@@ -80,6 +82,8 @@ public class GameSettings : ScriptableObject
     public float weaponSwitchTime = 0.3f; // s
     public float knockoutDuration = 60f; // s until the enemy wakes
     public float pickpocketHoldTime = 1.5f; // s
+    public float bladeSwingTime = 0.4f; // s
+    public float interactRange = 2f; // m reach for e
 
     [Header("Sleep Dart")]
     public float dartRange = 20f; // m
