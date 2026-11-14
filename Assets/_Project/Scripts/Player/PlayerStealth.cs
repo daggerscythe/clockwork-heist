@@ -28,6 +28,9 @@ public class PlayerStealth : MonoBehaviour
     {
         NoiseRadius = GetNoiseRadius();
         DetectTimeMultiplier = GetDetectTimeMultiplier();
+
+        // footsteps reach every guard inside the noise radius
+        if (NoiseRadius > 0f) Noise.Make(transform.position, NoiseRadius);
     }
 
     // standing still is silent and moving depends on movement

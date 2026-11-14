@@ -19,6 +19,9 @@ MonoBehaviour:
   capsuleRadius: 0.35
   capsuleHeight: 1.8
   crouchCapsuleHeight: 1.1
+  lookSensitivity: 0.1
+  airAcceleration: 4
+  jumpHeight: 1
   blinkMaxDistance: 15
   blinkCooldown: 3
   aimTimeScale: 0.1
@@ -44,7 +47,7 @@ MonoBehaviour:
   darkTimeMultiplier: 2
   crouchTimeMultiplier: 1.5
   sprintTimeMultiplier: 0.7
-  meterDrainPerSecond: 1
+  meterDrainPerSecond: 0.25
   noiseCrouch: 0
   noiseWalk: 4
   noiseSprint: 10

@@ -15,6 +15,12 @@ public class EnemySenses : MonoBehaviour
     // 0 means unaware and 1 means the player is fully detected
     public float Detection { get; private set; }
 
+    // true on frames the guard can see the player
+    public bool SeesPlayer { get; private set; }
+
+    // where the player was standing the last time this guard saw them
+    public Vector3 LastSeenPosition { get; private set; }
+
     // find the player and build the mask
     private void Awake()
     {
@@ -27,10 +33,17 @@ public class EnemySenses : MonoBehaviour
     // fill the meter while the player is seen and drain it when not
     private void Update()
     {
-        if (CanSeePlayer(out float distance))
+        SeesPlayer = CanSeePlayer(out float distance);
+
+        if (SeesPlayer)
+        {
+            LastSeenPosition = playerBody.transform.position;
             Detection += Time.deltaTime / TimeToDetect(distance);
+        }
         else
+        {
             Detection -= settings.meterDrainPerSecond * Time.deltaTime;
+        }
 
         Detection = Mathf.Clamp01(Detection);
     }

@@ -573,6 +573,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DetectionMeterUI
   senses: {fileID: 2770266773023292652}
+  ai: {fileID: 324495503608239776}
   canvas: {fileID: 5317893359558155667}
   fill: {fileID: 35150650781489773}
   fillingColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
