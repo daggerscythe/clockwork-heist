@@ -15,6 +15,10 @@ public class HUD : MonoBehaviour
     [SerializeField] private TMP_Text abilityText;
     [SerializeField] private GameObject holdBar;
     [SerializeField] private Image holdFill;
+    [SerializeField] private GameObject crosshair; // dot in the middle of the screen
+
+    // the crosshair is on by default and other scripts can hide it for menus or cutscenes
+    public bool CrosshairVisible { get; set; } = true;
 
     // keep everything matching the player
     private void Update()
@@ -32,5 +36,7 @@ public class HUD : MonoBehaviour
         // the hold bar only shows while pickpocketing
         holdBar.SetActive(interact.HoldFraction > 0f);
         holdFill.rectTransform.anchorMax = new Vector2(interact.HoldFraction, 1f);
+
+        crosshair.SetActive(CrosshairVisible);
     }
 }

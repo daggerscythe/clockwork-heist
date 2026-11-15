@@ -3670,7 +3670,6 @@ MonoBehaviour:
   settings: {fileID: 11400000, guid: bc467f1228eb17f45a7446bfac0940bc, type: 2}
   cameraTransform: {fileID: 961739753}
   wheel: {fileID: 442461404}
-  crosshair: {fileID: 2117415801}
 --- !u!114 &956272021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3870,6 +3869,7 @@ MonoBehaviour:
   abilityText: {fileID: 642025303}
   holdBar: {fileID: 1954136368}
   holdFill: {fileID: 554334355}
+  crosshair: {fileID: 2117415801}
 --- !u!114 &998398081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6622,7 +6622,7 @@ GameObject:
   - component: {fileID: 2117415804}
   - component: {fileID: 2117415803}
   m_Layer: 5
-  m_Name: DartCrosshair
+  m_Name: Crosshair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

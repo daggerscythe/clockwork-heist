@@ -14,7 +14,9 @@ public class GadgetThrower : MonoBehaviour
 
     private const float PreviewStep = 0.05f; // s of flight between arc points
     private const int PreviewSteps = 60; // so the preview shows 3 s of flight
-    private const int HiddenSteps = 2; // first steps left out because a line right at the eyes fills the screen
+    private const int HiddenSteps = 2; // first steps left out because a line right in front of the camera looks chunky
+
+    private static readonly Vector3 HandOffset = new Vector3(0.3f, -0.25f, 0.2f); // m right down and forward of the eyes where throws leave the hand
 
     private PlayerControls controls;
     private PlayerInventory inventory;
@@ -83,10 +85,18 @@ public class GadgetThrower : MonoBehaviour
         TimeScaleManager.Instance.Release(this);
     }
 
+    // the right hand spot so the arc is seen from the side or the eyes if a wall is in the way
+    private Vector3 ThrowOrigin()
+    {
+        Vector3 hand = cameraTransform.TransformPoint(HandOffset);
+        bool blocked = Physics.Linecast(cameraTransform.position, hand, solidMask, QueryTriggerInteraction.Ignore);
+        return blocked ? cameraTransform.position : hand;
+    }
+
     // follows the arc in small steps until it hits something
     private void DrawArc()
     {
-        Vector3 origin = cameraTransform.position;
+        Vector3 origin = ThrowOrigin();
         Vector3 velocity = cameraTransform.forward * settings.throwSpeed;
         points[0] = origin;
         int count = 1;
@@ -100,18 +110,19 @@ public class GadgetThrower : MonoBehaviour
             count++;
         }
 
-        // draw from a little way out so the near end does not fill the screen
+        // draw from a little way out so the near end does not look chunky
         int first = Mathf.Min(HiddenSteps, count - 1);
         arcLine.positionCount = count - first;
         for (int i = first; i < count; i++) arcLine.SetPosition(i - first, points[i]);
     }
 
-    // uses one gadget and sends it flying from the eyes
+    // uses one gadget and sends it flying from the hand
     private void Throw()
     {
         if (!inventory.TryUse(wheel.Selected)) return;
+        Vector3 origin = ThrowOrigin();
         ThrownGadget prefab = wheel.Selected == Ability.Decoy ? decoyPrefab : teleportGadgetPrefab;
-        ThrownGadget gadget = Instantiate(prefab, cameraTransform.position, Quaternion.identity);
-        gadget.Launch(cameraTransform.position, cameraTransform.forward * settings.throwSpeed);
+        ThrownGadget gadget = Instantiate(prefab, origin, Quaternion.identity);
+        gadget.Launch(origin, cameraTransform.forward * settings.throwSpeed);
     }
 }
