@@ -21,12 +21,6 @@ public abstract class ThrownGadget : MonoBehaviour
         return from + throwVelocity * time + Vector3.down * (0.5f * gravity * time * time);
     }
 
-    // true for surfaces on the teleportable layer
-    protected static bool IsTeleportable(RaycastHit hit)
-    {
-        return hit.collider.gameObject.layer == LayerMask.NameToLayer("Teleportable");
-    }
-
     // which gadget this is so it can be given back
     protected abstract Ability Kind { get; }
 

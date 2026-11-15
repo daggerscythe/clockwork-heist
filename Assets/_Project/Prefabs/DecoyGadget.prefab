@@ -104,4 +104,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DecoyGadget
   settings: {fileID: 11400000, guid: bc467f1228eb17f45a7446bfac0940bc, type: 2}
-  decoyPrefab: {fileID: 0}
+  decoyPrefab: {fileID: 5143478877092748199, guid: 41af1c33ab4c5214f81d07006913f43f, type: 3}

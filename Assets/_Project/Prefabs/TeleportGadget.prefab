@@ -140,5 +140,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3c8bf5675eeb9f4c8089e19f05d09ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GadgetPickup
-  gadget: 2
+  gadget: 1
   amount: 1

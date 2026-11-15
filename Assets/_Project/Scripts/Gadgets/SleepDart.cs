@@ -8,21 +8,19 @@ public class SleepDart : MonoBehaviour
     [SerializeField] private GameSettings settings;
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private AbilityWheel wheel;
-    [SerializeField] private Renderer marker;
-    [SerializeField] private Material legalMaterial; // green when aimed at a standing guard
-    [SerializeField] private Material illegalMaterial; // red anywhere else
+    [SerializeField] private GameObject crosshair; // dot in the middle of the screen while aiming
 
     private PlayerControls controls;
     private PlayerInventory inventory;
     private int hitMask; // guards and anything that stops a dart
     private bool isAiming;
 
-    // grab the inventory build the mask and hide the marker
+    // grab the inventory build the mask and hide the crosshair
     private void Awake()
     {
         inventory = GetComponent<PlayerInventory>();
         hitMask = ~LayerMask.GetMask("Player", "LightVolume", "Ignore Raycast");
-        marker.gameObject.SetActive(false);
+        crosshair.SetActive(false);
     }
 
     // input is created in the player controller awake so it is read here
@@ -51,42 +49,40 @@ public class SleepDart : MonoBehaviour
             return;
         }
 
-        bool hasHit = Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, settings.dartRange, hitMask, QueryTriggerInteraction.Ignore);
-        EnemyHealth target = hasHit ? hit.collider.GetComponentInParent<EnemyHealth>() : null;
-        bool onGuard = target != null && target.IsAlive;
-
-        marker.transform.position = hasHit ? hit.point : cameraTransform.position + cameraTransform.forward * settings.dartRange;
-        marker.sharedMaterial = onGuard ? legalMaterial : illegalMaterial;
-
         // letting go of right click fires
         if (!controls.Player.AimUse.IsPressed())
         {
-            Fire(hasHit, hit.point, onGuard ? target : null);
+            Fire();
             StopAim();
         }
     }
 
-    // slows time and shows the marker
+    // slows time and shows the crosshair
     private void StartAim()
     {
         isAiming = true;
         TimeScaleManager.Instance.Request(this, settings.aimTimeScale);
-        marker.gameObject.SetActive(true);
+        crosshair.SetActive(true);
     }
 
-    // puts time back to normal and hides the marker
+    // puts time back to normal and hides the crosshair
     private void StopAim()
     {
         isAiming = false;
         TimeScaleManager.Instance.Release(this);
-        marker.gameObject.SetActive(false);
+        crosshair.SetActive(false);
     }
 
-    // uses a dart and knocks out a guard on a hit or makes a small noise where it misses
-    private void Fire(bool hasHit, Vector3 point, EnemyHealth target)
+    // uses a dart and knocks out a standing guard or makes a small noise where it misses
+    private void Fire()
     {
         if (!inventory.TryUse(Ability.SleepDart)) return;
-        if (target != null) target.KnockOut();
-        else if (hasHit) Noise.Make(point, settings.dartMissNoiseRadius);
+
+        // a shot into nothing is used up without a sound
+        if (!Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, settings.dartRange, hitMask, QueryTriggerInteraction.Ignore)) return;
+
+        EnemyHealth target = hit.collider.GetComponentInParent<EnemyHealth>();
+        if (target != null && target.IsAlive) target.KnockOut();
+        else Noise.Make(hit.point, settings.dartMissNoiseRadius);
     }
 }

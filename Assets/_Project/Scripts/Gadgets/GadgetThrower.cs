@@ -8,30 +8,26 @@ public class GadgetThrower : MonoBehaviour
     [SerializeField] private GameSettings settings;
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private AbilityWheel wheel;
-    [SerializeField] private LineRenderer arcLine;
-    [SerializeField] private Renderer landingMarker;
-    [SerializeField] private Material legalMaterial; // green when the gadget will work there
-    [SerializeField] private Material illegalMaterial; // red when it will not
+    [SerializeField] private LineRenderer arcLine; // neutral color comes from its material
     [SerializeField] private ThrownGadget teleportGadgetPrefab;
     [SerializeField] private ThrownGadget decoyPrefab;
 
     private const float PreviewStep = 0.05f; // s of flight between arc points
     private const int PreviewSteps = 60; // so the preview shows 3 s of flight
+    private const int HiddenSteps = 2; // first steps left out because a line right at the eyes fills the screen
 
     private PlayerControls controls;
     private PlayerInventory inventory;
-    private CharacterController playerBody;
     private int solidMask; // things a gadget can hit
     private bool isAiming;
     private readonly Vector3[] points = new Vector3[PreviewSteps + 1]; // arc points reused every frame
 
-    // grab components build the mask and hide the preview
+    // grab the inventory build the mask and hide the arc
     private void Awake()
     {
         inventory = GetComponent<PlayerInventory>();
-        playerBody = GetComponent<CharacterController>();
         solidMask = ~LayerMask.GetMask("Player", "LightVolume", "Ignore Raycast");
-        ShowPreview(false);
+        arcLine.enabled = false;
     }
 
     // input is created in the player controller awake so it is read here
@@ -71,30 +67,23 @@ public class GadgetThrower : MonoBehaviour
         }
     }
 
-    // slows time and shows the arc
+    // shows the arc and slows time only for the teleport gadget
     private void StartAim()
     {
         isAiming = true;
-        TimeScaleManager.Instance.Request(this, settings.aimTimeScale);
-        ShowPreview(true);
+        arcLine.enabled = true;
+        if (wheel.Selected == Ability.TeleportGadget) TimeScaleManager.Instance.Request(this, settings.aimTimeScale);
     }
 
-    // puts time back to normal and hides the arc
+    // hides the arc and drops the slow motion if there was any
     private void StopAim()
     {
         isAiming = false;
+        arcLine.enabled = false;
         TimeScaleManager.Instance.Release(this);
-        ShowPreview(false);
     }
 
-    // turns the line and the landing marker on or off
-    private void ShowPreview(bool show)
-    {
-        arcLine.enabled = show;
-        landingMarker.gameObject.SetActive(show);
-    }
-
-    // follows the arc in small steps and colors it by whether the gadget would work where it lands
+    // follows the arc in small steps until it hits something
     private void DrawArc()
     {
         Vector3 origin = cameraTransform.position;
@@ -102,31 +91,19 @@ public class GadgetThrower : MonoBehaviour
         points[0] = origin;
         int count = 1;
         bool landed = false;
-        RaycastHit hit = default;
 
         for (int i = 1; i <= PreviewSteps && !landed; i++)
         {
             Vector3 next = ThrownGadget.PointAt(origin, velocity, settings.projectileGravity, i * PreviewStep);
-            landed = Physics.Linecast(points[count - 1], next, out hit, solidMask, QueryTriggerInteraction.Ignore);
+            landed = Physics.Linecast(points[count - 1], next, out RaycastHit hit, solidMask, QueryTriggerInteraction.Ignore);
             points[count] = landed ? hit.point : next;
             count++;
         }
 
-        Material material = landed && WouldWork(hit) ? legalMaterial : illegalMaterial;
-        arcLine.positionCount = count;
-        for (int i = 0; i < count; i++) arcLine.SetPosition(i, points[i]);
-        arcLine.sharedMaterial = material;
-
-        landingMarker.gameObject.SetActive(landed);
-        landingMarker.transform.position = points[count - 1];
-        landingMarker.sharedMaterial = material;
-    }
-
-    // the same landing rules the gadgets use
-    private bool WouldWork(RaycastHit hit)
-    {
-        if (wheel.Selected == Ability.Decoy) return DecoyGadget.CanStandOn(hit);
-        return TeleportGadget.CanTeleportTo(hit, playerBody, solidMask, out _);
+        // draw from a little way out so the near end does not fill the screen
+        int first = Mathf.Min(HiddenSteps, count - 1);
+        arcLine.positionCount = count - first;
+        for (int i = first; i < count; i++) arcLine.SetPosition(i - first, points[i]);
     }
 
     // uses one gadget and sends it flying from the eyes
