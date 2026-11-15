@@ -24,6 +24,7 @@ public class EnemyAI : MonoBehaviour
     private float searchDuration; // s the next or current look around lasts
     private float searchEndTime; // game time when looking around stops
     private float nextAttackTime; // game time the next hit can land
+    private Decoy decoy; // decoy the guard is running at or null
     private Vector3 postPosition; // where the guard was placed
     private Quaternion postRotation; // which way the guard was placed facing
 
@@ -74,8 +75,19 @@ public class EnemyAI : MonoBehaviour
     {
         if (!enabled || state == State.Alerted) return;
         state = State.Suspicious;
+        decoy = null;
         searchDuration = settings.confusionTime;
         MoveTo(point, settings.enemyWalkSpeed);
+    }
+
+    // a decoy pulls a guard that is awake and not chasing over at a run to hit it
+    public void AttackDecoy(Decoy target)
+    {
+        if (!enabled || state == State.Alerted) return;
+        state = State.Suspicious;
+        decoy = target;
+        searchDuration = settings.decoyConfusionTime;
+        MoveTo(target.transform.position, settings.enemyRunSpeed);
     }
 
     // gets up calm and looks around before going back to the routine
@@ -122,9 +134,18 @@ public class EnemyAI : MonoBehaviour
         MoveTo(patrolPoints[pointIndex].position, settings.enemyWalkSpeed);
     }
 
-    // walk to the noise or run to the body then look around there
+    // hit a decoy once in reach or look around once the spot is reached
     private void Suspicious()
     {
+        // the decoy vanishes on the hit and a decoy someone else hit already counts as null
+        if (decoy != null && Vector3.Distance(transform.position, decoy.transform.position) <= settings.enemyAttackRange)
+        {
+            decoy.Dissipate();
+            decoy = null;
+            StartSearch(searchDuration);
+            return;
+        }
+
         if (Arrived()) StartSearch(searchDuration);
     }
 
@@ -134,6 +155,7 @@ public class EnemyAI : MonoBehaviour
         onAlert = true;
         Shout(point);
         state = State.Suspicious;
+        decoy = null;
         searchDuration = settings.bodySearchTime;
         MoveTo(point, settings.enemyRunSpeed);
     }

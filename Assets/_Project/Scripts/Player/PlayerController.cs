@@ -30,6 +30,9 @@ public class PlayerController : MonoBehaviour
     // set while the player has a body on their shoulder
     public bool IsCarrying { get; set; }
 
+    // set while the ability wheel is open so the mouse picks a slot instead of turning
+    public bool LookLocked { get; set; }
+
     // true when player moving along the ground
     public bool IsMoving
     {
@@ -92,6 +95,7 @@ public class PlayerController : MonoBehaviour
     // mouse look
     private void Look()
     {
+        if (LookLocked) return;
         Vector2 delta = controls.Player.Look.ReadValue<Vector2>() * settings.lookSensitivity;
 
         // turn the body left and right

@@ -6,13 +6,11 @@ public class BlinkAbility : MonoBehaviour
 {
     [SerializeField] private GameSettings settings;
     [SerializeField] private Transform cameraTransform;
+    [SerializeField] private AbilityWheel wheel;
     [SerializeField] private Renderer marker;
     [SerializeField] private Material legalMaterial; // green
     [SerializeField] private Material illegalMaterial; // red
 
-    private const float SurfaceGap = 0.05f; // m between the capsule and the surface it lands on
-    private const float NudgeStep = 0.1f; // m pushed away from the surface each try
-    private const int NudgeTries = 3; // extra tries before the spot counts as blocked
     private const float LightCheckRadius = 0.05f; // m thickness of the light path check
 
     private PlayerController player;
@@ -49,9 +47,10 @@ public class BlinkAbility : MonoBehaviour
         if (isAiming) StopAim();
     }
 
+    // aim while right click is held when blink is the picked ability
     private void Update()
     {
-        if (!isAiming && controls.Player.AimUse.WasPressedThisFrame())
+        if (!isAiming && wheel.Selected == Ability.Blink && !wheel.IsOpen && controls.Player.AimUse.WasPressedThisFrame())
             StartAim();
         if (!isAiming) return;
 
@@ -94,8 +93,6 @@ public class BlinkAbility : MonoBehaviour
     {
         Vector3 origin = cameraTransform.position;
         Vector3 direction = cameraTransform.forward;
-        float radius = controller.radius;
-        float halfHeight = controller.height / 2f;
 
         // nothing in range so the marker floats at max distance as red
         if (!Physics.Raycast(origin, direction, out RaycastHit hit, settings.blinkMaxDistance, solidMask, QueryTriggerInteraction.Ignore))
@@ -105,32 +102,11 @@ public class BlinkAbility : MonoBehaviour
             return;
         }
 
-        // push the capsule off the surface so it just touches it at any angle
-        Vector3 normal = hit.normal;
-        float offset = radius + (halfHeight - radius) * Mathf.Abs(normal.y) + SurfaceGap;
-        Vector3 center = hit.point + normal * offset;
-
-        // if it clips try a few small nudges away from the surface
-        bool fits = CapsuleFits(center, radius, halfHeight);
-        for (int i = 0; i < NudgeTries && !fits; i++)
-        {
-            center += normal * NudgeStep;
-            fits = CapsuleFits(center, radius, halfHeight);
-        }
-
-        targetCenter = center;
+        bool fits = TeleportSpot.Find(hit, controller.radius, controller.height, solidMask, out targetCenter);
         isLegal = hit.collider.gameObject.layer == teleportableLayer
             && fits
-            && PathIsDark(origin, center)
+            && PathIsDark(origin, targetCenter)
             && Time.time >= readyTime;
-    }
-
-    // true when the player capsule fits here without touching anything
-    private bool CapsuleFits(Vector3 center, float radius, float halfHeight)
-    {
-        Vector3 bottom = center - Vector3.up * (halfHeight - radius);
-        Vector3 top = center + Vector3.up * (halfHeight - radius);
-        return !Physics.CheckCapsule(bottom, top, radius, solidMask, QueryTriggerInteraction.Ignore);
     }
 
     // true when the line from the player to the target touches no light volume

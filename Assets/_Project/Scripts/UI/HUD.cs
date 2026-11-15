@@ -8,9 +8,11 @@ public class HUD : MonoBehaviour
     [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private PlayerInventory inventory;
     [SerializeField] private PlayerInteract interact;
+    [SerializeField] private AbilityWheel wheel;
     [SerializeField] private Image healthFill;
     [SerializeField] private TMP_Text coinsText;
     [SerializeField] private TMP_Text promptText;
+    [SerializeField] private TMP_Text abilityText;
     [SerializeField] private GameObject holdBar;
     [SerializeField] private Image holdFill;
 
@@ -22,6 +24,10 @@ public class HUD : MonoBehaviour
 
         coinsText.text = "Coins " + inventory.Coins;
         promptText.text = interact.Prompt;
+
+        // what right click uses and how many are left
+        Ability picked = wheel.Selected;
+        abilityText.text = picked == Ability.Blink ? "Blink" : AbilityWheel.NameOf(picked) + "  " + inventory.Count(picked);
 
         // the hold bar only shows while pickpocketing
         holdBar.SetActive(interact.HoldFraction > 0f);

@@ -54,6 +54,16 @@ public class PlayerInteract : MonoBehaviour
             return;
         }
 
+        // gadgets lying around including a stuck teleport gadget
+        GadgetPickup pickup = target != null ? target.GetComponent<GadgetPickup>() : null;
+        if (pickup != null)
+        {
+            holdTime = 0f;
+            Prompt = "E  Take " + AbilityWheel.NameOf(pickup.Gadget);
+            if (pressed) pickup.Take(inventory);
+            return;
+        }
+
         EnemyHealth guard = target != null ? target.GetComponentInParent<EnemyHealth>() : null;
         Loot loot = target != null ? target.GetComponentInParent<Loot>() : null;
 
