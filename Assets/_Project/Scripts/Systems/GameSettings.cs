@@ -92,4 +92,7 @@ public class GameSettings : ScriptableObject
     [Header("Whistleblower")]
     public float lostSightTime = 5f; // s
     public float alarmPullTime = 1.5f; // s
+
+    [Header("Game over")]
+    public float gameOverDelay = 3f; // real s the game over screen shows before the respawn
 }

@@ -1,16 +1,17 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-// guard brain that patrols checks noises chases attacks and searches
+// guard brain that patrols checks noises chases attacks searches and for whistleblowers raises the alarm
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemySenses))]
 public class EnemyAI : MonoBehaviour
 {
-    private enum State { Patrol, Suspicious, Alerted, Confused }
+    private enum State { Patrol, Suspicious, Alerted, Confused, RaisingAlarm }
 
     [SerializeField] private GameSettings settings;
     [SerializeField] private Transform[] patrolPoints; // leave empty for a guard that stands still
     [SerializeField] private float waitAtPoint = 2f; // s to pause at each patrol point
+    [SerializeField] private bool isWhistleblower; // red hat guard that runs for the closest alarm
 
     private NavMeshAgent agent;
     private EnemySenses senses;
@@ -25,6 +26,11 @@ public class EnemyAI : MonoBehaviour
     private float searchEndTime; // game time when looking around stops
     private float nextAttackTime; // game time the next hit can land
     private Decoy decoy; // decoy the guard is running at or null
+    private bool hasSpottedPlayer; // true once a whistleblower has been alerted by the player
+    private float lostSightTimer; // s a whistleblower has gone without seeing the player since spotting them
+    private Alarm targetAlarm; // alarm a whistleblower is running for
+    private bool isPulling; // true once he is at the alarm
+    private float pullEndTime; // game time the alarm goes off
     private Vector3 postPosition; // where the guard was placed
     private Quaternion postRotation; // which way the guard was placed facing
 
@@ -33,6 +39,9 @@ public class EnemyAI : MonoBehaviour
 
     // true while the guard is going about its normal routine
     public bool IsCalm => state == State.Patrol;
+
+    // true while a standing whistleblower is running for or pulling an alarm
+    public bool IsRaisingAlarm => enabled && state == State.RaisingAlarm;
 
     // grab components and remember the post
     private void Awake()
@@ -51,15 +60,11 @@ public class EnemyAI : MonoBehaviour
         StartPatrol();
     }
 
-    // check for the player and bodies first then run the current state
+    // react to what the guard noticed then run the current state
     private void Update()
     {
-        // a full meter alerts any guard and a guard on alert chases at first sight
-        bool spotted = senses.Detection >= 1f || (onAlert && senses.SeesPlayer);
-        if (state != State.Alerted && spotted) StartAlert();
-
-        // a body nobody hid raises the alarm unless the guard is already chasing
-        if (state != State.Alerted && senses.NewBody != null) ReactToBody(senses.NewBody.transform.position);
+        // a whistleblower heading for an alarm ignores everything else
+        if (state != State.RaisingAlarm) CheckSenses();
 
         switch (state)
         {
@@ -67,23 +72,24 @@ public class EnemyAI : MonoBehaviour
             case State.Suspicious: Suspicious(); break;
             case State.Alerted: Alerted(); break;
             case State.Confused: Confused(); break;
+            case State.RaisingAlarm: RaisingAlarm(); break;
         }
     }
 
-    // a noise or a shout sends a guard that is awake and not chasing to check the spot
+    // a noise or a shout sends a guard that is awake and not busy to check the spot
     public void Investigate(Vector3 point)
     {
-        if (!enabled || state == State.Alerted) return;
+        if (IgnoresDistractions()) return;
         state = State.Suspicious;
         decoy = null;
         searchDuration = settings.confusionTime;
         MoveTo(point, settings.enemyWalkSpeed);
     }
 
-    // a decoy pulls a guard that is awake and not chasing over at a run to hit it
+    // a decoy pulls a guard that is awake and not busy over at a run to hit it
     public void AttackDecoy(Decoy target)
     {
-        if (!enabled || state == State.Alerted) return;
+        if (IgnoresDistractions()) return;
         state = State.Suspicious;
         decoy = target;
         searchDuration = settings.decoyConfusionTime;
@@ -94,7 +100,46 @@ public class EnemyAI : MonoBehaviour
     public void WakeUp()
     {
         onAlert = false;
+        hasSpottedPlayer = false;
+        lostSightTimer = 0f;
         StartSearch(settings.wakeSearchTime);
+    }
+
+    // a checkpoint respawn puts the guard back at its post calm and unaware
+    public void ResetToPost()
+    {
+        agent.Warp(postPosition);
+        transform.rotation = postRotation;
+        pointIndex = 0;
+        senses.ResetDetection();
+        StartPatrol();
+    }
+
+    // knocked out guards chasing guards and running whistleblowers do not get distracted
+    private bool IgnoresDistractions()
+    {
+        return !enabled || state == State.Alerted || state == State.RaisingAlarm;
+    }
+
+    // alerts from sight bodies and the whistleblower trigger
+    private void CheckSenses()
+    {
+        // a full meter alerts any guard and a guard on alert chases at first sight
+        bool spotted = senses.Detection >= 1f || (onAlert && senses.SeesPlayer);
+        if (state != State.Alerted && spotted) StartAlert();
+
+        // a body nobody hid raises the alarm unless the guard is already chasing
+        if (state != State.Alerted && senses.NewBody != null) ReactToBody(senses.NewBody.transform.position);
+
+        if (isWhistleblower && WantsAlarm()) StartAlarmRun();
+    }
+
+    // true when a whistleblower just found a body or has not seen the player for too long since spotting them
+    private bool WantsAlarm()
+    {
+        if (senses.NewBody != null) return true;
+        lostSightTimer = hasSpottedPlayer && !senses.SeesPlayer ? lostSightTimer + Time.deltaTime : 0f;
+        return lostSightTimer >= settings.lostSightTime;
     }
 
     // go back to the route or the post and calm down
@@ -102,6 +147,8 @@ public class EnemyAI : MonoBehaviour
     {
         state = State.Patrol;
         onAlert = false;
+        hasSpottedPlayer = false;
+        lostSightTimer = 0f;
         isWaiting = false;
         Vector3 target = patrolPoints.Length > 0 ? patrolPoints[pointIndex].position : postPosition;
         MoveTo(target, settings.enemyWalkSpeed);
@@ -165,6 +212,7 @@ public class EnemyAI : MonoBehaviour
     {
         state = State.Alerted;
         onAlert = true;
+        hasSpottedPlayer = true;
         agent.isStopped = false;
         agent.speed = settings.enemyRunSpeed;
         nextAttackTime = Time.time + settings.enemyAttackInterval;
@@ -228,6 +276,31 @@ public class EnemyAI : MonoBehaviour
     {
         transform.Rotate(0f, 360f / searchDuration * Time.deltaTime, 0f);
         if (Time.time >= searchEndTime) StartPatrol();
+    }
+
+    // heads for the closest alarm at a run and a level without alarms changes nothing
+    private void StartAlarmRun()
+    {
+        targetAlarm = Alarm.Closest(transform.position, gameObject.scene);
+        if (targetAlarm == null) return;
+        state = State.RaisingAlarm;
+        decoy = null;
+        isPulling = false;
+        MoveTo(targetAlarm.PullPoint, settings.enemyRunSpeed);
+    }
+
+    // runs to the alarm then pulls it for a moment which ends the game unless he is stopped
+    private void RaisingAlarm()
+    {
+        if (!isPulling)
+        {
+            if (!Arrived()) return;
+            isPulling = true;
+            pullEndTime = Time.time + settings.alarmPullTime;
+        }
+
+        FaceTowards(targetAlarm.transform.position);
+        if (Time.time >= pullEndTime) targetAlarm.Pull();
     }
 
     // un-pause the agent and send it somewhere at a speed

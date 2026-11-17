@@ -4,7 +4,7 @@ using UnityEngine.AI;
 
 // guard health and being knocked out killed carried hidden and woken up
 [RequireComponent(typeof(EnemyAI))]
-public class EnemyHealth : MonoBehaviour
+public class EnemyHealth : MonoBehaviour, ICheckpointState
 {
     private enum Condition { Alive, KnockedOut, Dead }
 
@@ -13,7 +13,7 @@ public class EnemyHealth : MonoBehaviour
     [SerializeField] private GameObject detectionMeter;
 
     private const float LyingHeight = 0.4f; // m the lying body sits above the floor
-    private const float StandUpSearch = 2f; // m to look for walkable floor when waking
+    private const float StandUpSearch = 2f; // m to look for walkable floor when getting up
 
     // every active guard so others can look for bodies
     public static readonly List<EnemyHealth> All = new List<EnemyHealth>();
@@ -24,6 +24,11 @@ public class EnemyHealth : MonoBehaviour
     private Condition condition;
     private float health; // health points
     private float wakeLeft; // s until a knocked out guard gets up
+    private Condition savedCondition; // how the guard was at the last checkpoint
+    private Vector3 savedPosition; // where a downed guard lay at the last checkpoint
+    private Quaternion savedRotation; // how a downed guard lay at the last checkpoint
+    private bool savedHidden; // true if he was in a stash at the last checkpoint
+    private float savedWakeLeft; // s a knocked out guard had left at the last checkpoint
 
     // true while standing and able to act
     public bool IsAlive => condition == Condition.Alive;
@@ -118,6 +123,36 @@ public class EnemyHealth : MonoBehaviour
         model.gameObject.SetActive(false);
     }
 
+    // remembers how this guard was when the player reached the checkpoint
+    public void SaveState()
+    {
+        savedCondition = condition;
+        savedPosition = transform.position;
+        savedRotation = transform.rotation;
+        savedHidden = IsHidden;
+        savedWakeLeft = wakeLeft;
+    }
+
+    // a guard standing at the checkpoint gets up fresh at his post and a downed one lies back where he was
+    public void RestoreState()
+    {
+        gameObject.SetActive(true);
+
+        if (savedCondition == Condition.Alive)
+        {
+            health = settings.enemyMaxHealth;
+            StandUp();
+            ai.ResetToPost();
+            return;
+        }
+
+        transform.SetPositionAndRotation(savedPosition, savedRotation);
+        wakeLeft = savedWakeLeft;
+        GoDown(savedCondition);
+        IsHidden = savedHidden;
+        model.gameObject.SetActive(!savedHidden);
+    }
+
     // turns the guard into a body lying on the floor
     private void GoDown(Condition newCondition)
     {
@@ -127,8 +162,15 @@ public class EnemyHealth : MonoBehaviour
         model.localRotation = Quaternion.Euler(90f, 0f, 0f);
     }
 
-    // stands back up and starts searching
+    // gets up on his own and looks around
     private void WakeUp()
+    {
+        StandUp();
+        ai.WakeUp();
+    }
+
+    // back on his feet on walkable floor with his brain on
+    private void StandUp()
     {
         condition = Condition.Alive;
         IsHidden = false;
@@ -141,7 +183,6 @@ public class EnemyHealth : MonoBehaviour
             transform.position = hit.position;
 
         SetBrain(true);
-        ai.WakeUp();
     }
 
     // turns the brain movement and meter on or off together

@@ -41,6 +41,15 @@ public class PlayerInteract : MonoBehaviour
         controls = player.Controls;
     }
 
+    // empties the shoulder without dropping so a checkpoint restore can put the guard back
+    public void ForgetCarried()
+    {
+        carried = null;
+        holdTime = 0f;
+        player.IsCarrying = false;
+        carriedModel.SetActive(false);
+    }
+
     // works out what e would do on whatever the player is looking at
     private void Update()
     {

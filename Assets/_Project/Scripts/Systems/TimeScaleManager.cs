@@ -8,6 +8,7 @@ public class TimeScaleManager : MonoBehaviour
 
     // who asked for a speed and what speed they asked for with the newest last
     private readonly List<(Object owner, float scale)> requests = new List<(Object owner, float scale)>();
+    private const float MinStepScale = 0.01f; // smallest part of the normal physics step allowed so a frozen game stays valid
     private float normalFixedStep; // s between physics steps at normal speed
 
     private void Awake()
@@ -37,8 +38,8 @@ public class TimeScaleManager : MonoBehaviour
         float scale = requests.Count > 0 ? requests[requests.Count - 1].scale : 1f;
         Time.timeScale = scale;
 
-        // physics steps shrink too so slow motion stays smooth
-        Time.fixedDeltaTime = normalFixedStep * scale;
+        // physics steps shrink too so slow motion stays smooth but never reach zero
+        Time.fixedDeltaTime = normalFixedStep * Mathf.Max(scale, MinStepScale);
     }
 
     // put the speed back when the scene closes

@@ -1,7 +1,6 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-// tracks the player health and restarts the level when it runs out
+// tracks the player health and ends the run when it runs out
 public class PlayerHealth : MonoBehaviour
 {
     [SerializeField] private GameSettings settings;
@@ -15,14 +14,20 @@ public class PlayerHealth : MonoBehaviour
     // start at full health
     private void Awake()
     {
-        Health = settings.playerMaxHealth;
+        Restore();
     }
 
-    // lose health and restart the level at zero
+    // lose health and end the run at zero
     public void TakeDamage(float amount)
     {
+        if (Health <= 0f) return;
         Health = Mathf.Max(0f, Health - amount);
-        if (Health <= 0f)
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        if (Health <= 0f) GameManager.Instance.GameOver("You died");
+    }
+
+    // back to full health after a respawn
+    public void Restore()
+    {
+        Health = settings.playerMaxHealth;
     }
 }

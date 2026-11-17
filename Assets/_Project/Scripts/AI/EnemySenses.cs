@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // lets a guard see the player and bodies and fills its detection meter
-public class EnemySenses : MonoBehaviour
+public class EnemySenses : MonoBehaviour, ICheckpointState
 {
     [SerializeField] private GameSettings settings;
     [SerializeField] private Transform eyes;
@@ -14,6 +14,7 @@ public class EnemySenses : MonoBehaviour
     private CharacterController playerBody;
     private int sightMask; // things that block the view
     private readonly HashSet<EnemyHealth> knownBodies = new HashSet<EnemyHealth>(); // bodies this guard already reacted to
+    private readonly List<EnemyHealth> savedBodies = new List<EnemyHealth>(); // bodies already known at the last checkpoint
 
     // 0 means unaware and 1 means the player is fully detected
     public float Detection { get; private set; }
@@ -39,9 +40,29 @@ public class EnemySenses : MonoBehaviour
     // a guard that wakes back up starts with an empty meter
     private void OnEnable()
     {
+        ResetDetection();
+    }
+
+    // forgets the player and empties the meter
+    public void ResetDetection()
+    {
         Detection = 0f;
         SeesPlayer = false;
         NewBody = null;
+    }
+
+    // remember which bodies this guard knew about at the checkpoint
+    public void SaveState()
+    {
+        savedBodies.Clear();
+        savedBodies.AddRange(knownBodies);
+    }
+
+    // forget bodies found since the checkpoint
+    public void RestoreState()
+    {
+        knownBodies.Clear();
+        knownBodies.UnionWith(savedBodies);
     }
 
     // fill the meter while the player is seen and drain it when not and look for bodies
