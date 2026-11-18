@@ -7,6 +7,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    // true from a game over until the respawn
+    public bool IsOver => isOver;
+
     [SerializeField] private GameSettings settings;
     [SerializeField] private PlayerController player;
     [SerializeField] private PlayerHealth playerHealth;
@@ -45,6 +48,9 @@ public class GameManager : MonoBehaviour
     {
         if (isOver && Time.unscaledTime >= respawnTime) Respawn();
         if (checkpointNotice.activeSelf && Time.unscaledTime >= noticeEndTime) checkpointNotice.SetActive(false);
+
+        // a player who slipped out of the level ends the run instead of falling forever
+        if (!IsInsideWorld(player.transform.position)) GameOver("You fell out of the world... somehow...");
     }
 
     // a checkpoint trigger saves the spot and the level and says so
@@ -61,11 +67,27 @@ public class GameManager : MonoBehaviour
         if (isOver) return;
         isOver = true;
         TimeScaleManager.Instance.Request(this, 0f);
-        foreach (Behaviour script in playerScripts) script.enabled = false;
-        hud.CrosshairVisible = false;
+        SetPlayerInput(false);
         gameOverText.text = reason;
         gameOverScreen.SetActive(true);
         respawnTime = Time.unscaledTime + settings.gameOverDelay;
+    }
+
+    // switches the player scripts and the crosshair off for game over or a hack and back on after
+    public void SetPlayerInput(bool on)
+    {
+        foreach (Behaviour script in playerScripts) script.enabled = on;
+        hud.CrosshairVisible = on;
+    }
+
+    // true while every axis of a point is between the world min and max from the settings
+    private bool IsInsideWorld(Vector3 point)
+    {
+        Vector3 min = settings.worldMin;
+        Vector3 max = settings.worldMax;
+        return point.x >= min.x && point.x <= max.x
+            && point.y >= min.y && point.y <= max.y
+            && point.z >= min.z && point.z <= max.z;
     }
 
     // remembers the spot and asks everything in the loaded scenes that can be saved to save itself
@@ -92,11 +114,13 @@ public class GameManager : MonoBehaviour
         // a body on the shoulder goes back through its own restore
         playerInteract.ForgetCarried();
 
-        // gadgets thrown since the checkpoint go away because the inventory gets them back
+        // gadgets and darts thrown since the checkpoint go away because the inventory gets them back
         foreach (ThrownGadget gadget in FindObjectsByType<ThrownGadget>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             Destroy(gadget.gameObject);
         foreach (Decoy decoy in FindObjectsByType<Decoy>(FindObjectsSortMode.None))
             Destroy(decoy.gameObject);
+        foreach (Dart dart in FindObjectsByType<Dart>(FindObjectsSortMode.None))
+            Destroy(dart.gameObject);
 
         foreach (MonoBehaviour behaviour in savedObjects)
         {
@@ -108,8 +132,7 @@ public class GameManager : MonoBehaviour
         playerHealth.Restore();
 
         gameOverScreen.SetActive(false);
-        hud.CrosshairVisible = true;
-        foreach (Behaviour script in playerScripts) script.enabled = true;
+        SetPlayerInput(true);
         TimeScaleManager.Instance.Release(this);
         isOver = false;
     }

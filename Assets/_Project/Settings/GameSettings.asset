@@ -22,6 +22,8 @@ MonoBehaviour:
   lookSensitivity: 0.1
   airAcceleration: 4
   jumpHeight: 1
+  leanDistance: 0.5
+  leanAngle: 10
   blinkMaxDistance: 15
   blinkCooldown: 3
   aimTimeScale: 0.1
@@ -57,17 +59,29 @@ MonoBehaviour:
   cameraConeAngle: 60
   cameraRange: 12
   cameraAlertRadius: 20
+  cameraReportTime: 3
   hackMemorizeTime: 3
   hackSolveTime: 12
   hackDifferences: 3
   hackRetryDelay: 10
+  hackRange: 10
+  hackShiftDistance: 0.8
+  hackWrongClickPenalty: 2
+  hackTabletTime: 0.75
+  hackGlitchTime: 0.4
   bladeDamage: 25
   takedownRange: 1.5
   clubSwingTime: 0.4
   weaponSwitchTime: 0.3
   knockoutDuration: 60
   pickpocketHoldTime: 1.5
-  dartRange: 20
+  bladeSwingTime: 0.4
+  interactRange: 2
+  dartSpeed: 80
+  dartGravity: 9.81
   dartMissNoiseRadius: 4
   lostSightTime: 5
   alarmPullTime: 1.5
+  gameOverDelay: 3
+  worldMin: {x: -200, y: -50, z: -200}
+  worldMax: {x: 200, y: 200, z: 200}

@@ -43,6 +43,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // true while the feet are on the ground
+    public bool IsGrounded => controller.isGrounded;
+
     // input shared with the other player scripts
     public PlayerControls Controls => controls;
 
@@ -212,5 +215,13 @@ public class PlayerController : MonoBehaviour
         controller.enabled = true;
         horizontalVelocity = Vector3.zero;
         verticalVelocity = 0f;
+    }
+
+    // drops all ground speed so a switched off controller reports the player as standing still
+    public void Stop()
+    {
+        horizontalVelocity = Vector3.zero;
+        IsSprinting = false;
+        controller.Move(Vector3.zero);
     }
 }

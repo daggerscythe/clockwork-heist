@@ -68,12 +68,18 @@ public class GameSettings : ScriptableObject
     public float cameraConeAngle = 60f; // degrees
     public float cameraRange = 12f; // m
     public float cameraAlertRadius = 20f; // m
+    public float cameraReportTime = 3f; // s a camera holds still after calling guards
 
     [Header("Camera hacking minigame")]
     public float hackMemorizeTime = 3f; // s
     public float hackSolveTime = 12f; // s
     public int hackDifferences = 3;
     public float hackRetryDelay = 10f; // s
+    public float hackRange = 10f; // m the player can hack a camera from while aiming at it
+    public float hackShiftDistance = 0.8f; // m a moved prop slides sideways
+    public float hackWrongClickPenalty = 2f; // s taken off the timer for a wrong click
+    public float hackTabletTime = 0.75f; // s for the tablet to come up or go down
+    public float hackGlitchTime = 0.4f; // s of static between the original feed and the changed one
 
     [Header("Combat")]
     public float bladeDamage = 25f;
@@ -86,7 +92,8 @@ public class GameSettings : ScriptableObject
     public float interactRange = 2f; // m reach for e
 
     [Header("Sleep Dart")]
-    public float dartRange = 20f; // m
+    public float dartSpeed = 80f; // m/s the dart leaves the wrist at
+    public float dartGravity = 9.81f; // m/s^2 pulling the dart down so long shots dip
     public float dartMissNoiseRadius = 4f;// m
 
     [Header("Whistleblower")]
@@ -95,4 +102,8 @@ public class GameSettings : ScriptableObject
 
     [Header("Game over")]
     public float gameOverDelay = 3f; // real s the game over screen shows before the respawn
+
+    [Header("World bounds")]
+    public Vector3 worldMin = new Vector3(-200f, -50f, -200f); // m lowest x y and z the player can be at before they count as out of the world
+    public Vector3 worldMax = new Vector3(200f, 200f, 200f); // m highest x y and z
 }

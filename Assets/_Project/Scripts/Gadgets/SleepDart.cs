@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// hold right click to aim the wrist dart and let go to knock out a guard from range
+// hold right click to aim the wrist dart and let go to fire a dart that knocks out a guard
 [RequireComponent(typeof(PlayerController))]
 [RequireComponent(typeof(PlayerInventory))]
 public class SleepDart : MonoBehaviour
@@ -8,6 +8,10 @@ public class SleepDart : MonoBehaviour
     [SerializeField] private GameSettings settings;
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private AbilityWheel wheel;
+    [SerializeField] private Dart dartPrefab;
+
+    private const float AimDistance = 100f; // m out to look for what the crosshair is on
+    private static readonly Vector3 WristOffset = new Vector3(0.25f, -0.2f, 0.3f); // m right down and forward of the eyes where the launcher sits
 
     private PlayerControls controls;
     private PlayerInventory inventory;
@@ -69,16 +73,25 @@ public class SleepDart : MonoBehaviour
         TimeScaleManager.Instance.Release(this);
     }
 
-    // uses a dart and knocks out a standing guard or makes a small noise where it misses
+    // uses a dart and sends it from the wrist toward whatever the crosshair is on
     private void Fire()
     {
         if (!inventory.TryUse(Ability.SleepDart)) return;
 
-        // a shot into nothing is used up without a sound
-        if (!Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, settings.dartRange, hitMask, QueryTriggerInteraction.Ignore)) return;
+        Vector3 aimPoint = cameraTransform.position + cameraTransform.forward * AimDistance;
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, AimDistance, hitMask, QueryTriggerInteraction.Ignore))
+            aimPoint = hit.point;
 
-        EnemyHealth target = hit.collider.GetComponentInParent<EnemyHealth>();
-        if (target != null && target.IsAlive) target.KnockOut();
-        else Noise.Make(hit.point, settings.dartMissNoiseRadius);
+        Vector3 origin = LaunchOrigin();
+        Dart dart = Instantiate(dartPrefab);
+        dart.Launch(origin, (aimPoint - origin).normalized * settings.dartSpeed);
+    }
+
+    // the wrist unless a wall is between it and the eyes and then the eyes
+    private Vector3 LaunchOrigin()
+    {
+        Vector3 wrist = cameraTransform.TransformPoint(WristOffset);
+        bool blocked = Physics.Linecast(cameraTransform.position, wrist, hitMask, QueryTriggerInteraction.Ignore);
+        return blocked ? cameraTransform.position : wrist;
     }
 }
