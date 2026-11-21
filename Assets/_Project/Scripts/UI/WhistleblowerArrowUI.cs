@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// points an arrow at the screen edge toward every whistleblower running for an alarm
+// turns an arrow in one fixed spot toward every whistleblower running for an alarm so the player knows where to look
 public class WhistleblowerArrowUI : MonoBehaviour
 {
-    [SerializeField] private RectTransform area; // the hud canvas the arrows move around in
-    [SerializeField] private RectTransform arrowTemplate; // hidden arrow copied once per runner
+    [SerializeField] private RectTransform arrowTemplate; // hidden arrow copied once per runner and placed where the arrows sit
     [SerializeField] private GameObject warning; // text shown while anyone is running
 
-    private const float EdgeMargin = 60f; // px kept between an arrow and the screen edge
     private const float AimHeight = 1f; // m above a guard's feet the arrow points at
+    private const float OnScreenAngle = 25f; // degrees from straight ahead inside which the runner is in view and the arrow hides
 
     private readonly List<RectTransform> arrows = new List<RectTransform>(); // copies made so far
     private readonly List<EnemyAI> runners = new List<EnemyAI>(); // whistleblowers running this frame
@@ -39,12 +38,11 @@ public class WhistleblowerArrowUI : MonoBehaviour
         for (int i = 0; i < arrows.Count; i++)
         {
             bool used = i < runners.Count;
-            arrows[i].gameObject.SetActive(used);
-            if (used) PlaceArrow(arrows[i], runners[i].transform.position + Vector3.up * AimHeight);
+            arrows[i].gameObject.SetActive(used && AimArrow(arrows[i], runners[i].transform.position + Vector3.up * AimHeight));
         }
     }
 
-    // a copy of the template drawn where the template sits so the screens and menus above it stay on top
+    // a copy of the template in the same spot and drawn where the template sits so the screens and menus above it stay on top
     private RectTransform MakeArrow()
     {
         RectTransform arrow = Instantiate(arrowTemplate, arrowTemplate.parent);
@@ -52,23 +50,17 @@ public class WhistleblowerArrowUI : MonoBehaviour
         return arrow;
     }
 
-    // puts an arrow on the screen edge in the direction of a world point and turns it to point that way
-    private void PlaceArrow(RectTransform arrow, Vector3 target)
+    // turns an arrow toward a world point and returns false when the point is already in front of the player
+    private bool AimArrow(RectTransform arrow, Vector3 target)
     {
-        Vector3 local = cameraTransform.InverseTransformPoint(target);
-        Vector2 direction = new Vector2(local.x, local.y);
+        // the direction to the runner seen from above with only the way the player faces taken out
+        Vector3 toTarget = Quaternion.Inverse(Quaternion.Euler(0f, cameraTransform.eulerAngles.y, 0f)) * (target - cameraTransform.position);
 
-        // straight ahead or straight behind gives no direction so point down
-        if (direction.sqrMagnitude < 0.0001f) direction = Vector2.down;
-        direction.Normalize();
+        // 0 is straight ahead 90 is to the right and 180 is behind
+        float angle = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
 
-        // slide out from the center until the arrow meets the edge rectangle
-        Vector2 half = area.rect.size / 2f - Vector2.one * EdgeMargin;
-        float reach = Mathf.Min(half.x / Mathf.Abs(direction.x), half.y / Mathf.Abs(direction.y));
-        arrow.anchoredPosition = direction * reach;
-
-        // the arrow sprite points down so turn it a quarter more than the direction
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        arrow.localRotation = Quaternion.Euler(0f, 0f, angle + 90f);
+        // the arrow sprite points down so half a turn makes it point ahead and it turns clockwise toward the right
+        arrow.localRotation = Quaternion.Euler(0f, 0f, 180f - angle);
+        return Mathf.Abs(angle) > OnScreenAngle;
     }
 }
