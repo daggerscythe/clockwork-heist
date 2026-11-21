@@ -356,7 +356,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8209042396892009471, guid: bd88a0d3701fb4846a469e5c0e77ef7d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -7.56959
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8209042396892009471, guid: bd88a0d3701fb4846a469e5c0e77ef7d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -376,11 +376,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8209042396892009471, guid: bd88a0d3701fb4846a469e5c0e77ef7d, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -968.9468
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8209042396892009471, guid: bd88a0d3701fb4846a469e5c0e77ef7d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -540
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8209042396892009471, guid: bd88a0d3701fb4846a469e5c0e77ef7d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -704,7 +704,7 @@ MonoBehaviour:
   m_MinWidth: -1
   m_MinHeight: -1
   m_PreferredWidth: -1
-  m_PreferredHeight: 28
+  m_PreferredHeight: 58
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -928,7 +928,7 @@ MonoBehaviour:
     m_Bottom: 0
   m_ChildAlignment: 0
   m_Spacing: 28
-  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
