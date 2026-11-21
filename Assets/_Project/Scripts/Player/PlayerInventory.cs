@@ -16,21 +16,28 @@ public class PlayerInventory : MonoBehaviour, ICheckpointState
         Coins += amount;
     }
 
-    // how many of a gadget the player holds
-    public int Count(Ability gadget)
-    {
-        return gadgets[(int)gadget];
-    }
-
     // adds gadgets from a pickup
     public void Add(Ability gadget, int amount)
     {
         gadgets[(int)gadget] += amount;
     }
 
-    // takes one away and returns false if there were none
+    // true when the player can use a gadget right now
+    public bool Has(Ability gadget)
+    {
+        return GameOptions.UnlimitedGadgets || gadgets[(int)gadget] > 0;
+    }
+
+    // the count as text for the wheel and hud with the infinity sign while the cheat is on
+    public string CountText(Ability gadget)
+    {
+        return GameOptions.UnlimitedGadgets ? "\u221E" : gadgets[(int)gadget].ToString();
+    }
+
+    // takes one away and returns false if there were none and the cheat keeps the count as it is
     public bool TryUse(Ability gadget)
     {
+        if (GameOptions.UnlimitedGadgets) return true;
         if (gadgets[(int)gadget] <= 0) return false;
         gadgets[(int)gadget]--;
         return true;

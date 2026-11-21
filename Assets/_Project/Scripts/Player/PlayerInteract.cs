@@ -24,6 +24,9 @@ public class PlayerInteract : MonoBehaviour
     // what e does right now for the hud and empty when nothing
     public string Prompt { get; private set; } = "";
 
+    // true when the prompt is something e does so the hud shows the key
+    public bool PromptHasKey { get; private set; }
+
     // 0 to 1 of the pickpocket hold
     public float HoldFraction => holdTime / settings.pickpocketHoldTime;
 
@@ -71,7 +74,7 @@ public class PlayerInteract : MonoBehaviour
         {
             holdTime = 0f;
             string blocked = WhyCantHack(aimedCamera);
-            Prompt = blocked ?? "E  Hack camera";
+            ShowPrompt(blocked ?? "Hack camera", blocked == null);
             if (pressed && blocked == null && player.IsGrounded) hackMinigame.Begin(aimedCamera);
             return;
         }
@@ -81,7 +84,7 @@ public class PlayerInteract : MonoBehaviour
         if (pickup != null)
         {
             holdTime = 0f;
-            Prompt = "E  Take " + AbilityWheel.NameOf(pickup.Gadget);
+            ShowPrompt("Take " + AbilityWheel.NameOf(pickup.Gadget), true);
             if (pressed) pickup.Take(inventory);
             return;
         }
@@ -93,7 +96,7 @@ public class PlayerInteract : MonoBehaviour
         if (guard != null && guard.IsDown)
         {
             holdTime = 0f;
-            Prompt = "E  Pick up body";
+            ShowPrompt("Pick up body", true);
             if (pressed) PickUp(guard, loot);
             return;
         }
@@ -101,7 +104,7 @@ public class PlayerInteract : MonoBehaviour
         // an unaware guard with coins can be pickpocketed from behind
         if (guard != null && loot != null && loot.HasCoins && guard.IsUnaware(cameraTransform.position))
         {
-            Prompt = "Hold E  Pickpocket";
+            ShowPrompt("Hold to pickpocket", true);
             HoldPickpocket(loot);
             return;
         }
@@ -111,12 +114,19 @@ public class PlayerInteract : MonoBehaviour
         // a coin pile in the level
         if (guard == null && loot != null && loot.HasCoins)
         {
-            Prompt = "E  Take coins";
+            ShowPrompt("Take coins", true);
             if (pressed) inventory.AddCoins(loot.TakeAll());
             return;
         }
 
-        Prompt = "";
+        ShowPrompt("", false);
+    }
+
+    // sets the prompt text and whether the hud shows the e key with it
+    private void ShowPrompt(string text, bool hasKey)
+    {
+        Prompt = text;
+        PromptHasKey = hasKey;
     }
 
     // the first thing in front of the player as far as the hack range reaches
@@ -131,7 +141,7 @@ public class PlayerInteract : MonoBehaviour
     {
         if (securityCamera.IsHacked) return "Camera hacked";
         if (!securityCamera.CanRetry) return "Hack again in " + Mathf.CeilToInt(securityCamera.RetryTime - Time.time) + " s";
-        if (inventory.Count(Ability.HackKit) == 0) return "Need a Hack Kit";
+        if (!inventory.Has(Ability.HackKit)) return "Need a Hack Kit";
         return null;
     }
 
@@ -164,7 +174,7 @@ public class PlayerInteract : MonoBehaviour
     private void UpdateCarrying(Collider target, bool pressed)
     {
         BodyStash stash = target != null ? target.GetComponentInParent<BodyStash>() : null;
-        Prompt = stash != null ? "E  Hide body" : "E  Drop body";
+        ShowPrompt(stash != null ? "Hide body" : "Drop body", true);
         if (!pressed) return;
 
         if (stash != null) carried.Hide(stash.ExitPoint.position, stash.ExitPoint.rotation);

@@ -8,8 +8,10 @@ public class DetectionMeterUI : MonoBehaviour
     [SerializeField] private EnemyAI ai;
     [SerializeField] private Canvas canvas;
     [SerializeField] private Image fill;
-    [SerializeField] private Color fillingColor = Color.yellow; // while the meter is going up
-    [SerializeField] private Color fullColor = Color.red; // while the guard is alerted or raising alarm
+    [SerializeField] private GameObject eye; // shown in the middle while the guard is not alerted
+    [SerializeField] private GameObject alertMark; // shown in the middle while the guard is alerted or raising the alarm
+    [SerializeField] private Color fillingColor = new Color32(232, 176, 64, 255); // while the meter is going up
+    [SerializeField] private Color fullColor = new Color32(200, 48, 40, 255); // while the guard is alerted or raising alarm
 
     private Transform cameraTransform;
 
@@ -27,6 +29,8 @@ public class DetectionMeterUI : MonoBehaviour
         bool alarmed = ai.IsAlerted || ai.IsRaisingAlarm;
         fill.fillAmount = alarmed ? 1f : senses.Detection;
         fill.color = alarmed ? fullColor : fillingColor;
+        eye.SetActive(!alarmed);
+        alertMark.SetActive(alarmed);
 
         // match the camera so the meter always lies flat toward the screen
         transform.rotation = cameraTransform.rotation;

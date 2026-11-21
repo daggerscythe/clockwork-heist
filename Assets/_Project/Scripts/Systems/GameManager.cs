@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject checkpointNotice;
 
     private const float NoticeTime = 2f; // real s the checkpoint notice stays up
+    private const float RestartDelay = 0.1f; // real s a restart waits so every script sees the run end before the respawn
 
     private readonly List<MonoBehaviour> savedObjects = new List<MonoBehaviour>(); // everything that saved its state at the checkpoint
     private Vector3 checkpointPosition;
@@ -65,12 +66,25 @@ public class GameManager : MonoBehaviour
     public void GameOver(string reason)
     {
         if (isOver) return;
+        EndRun(settings.gameOverDelay);
+        gameOverText.text = reason;
+        gameOverScreen.SetActive(true);
+    }
+
+    // the pause menu restart goes straight to the respawn with no game over screen
+    public void RestartFromCheckpoint()
+    {
+        if (isOver) return;
+        EndRun(RestartDelay);
+    }
+
+    // freezes the game and takes the controls away until the respawn after a delay in real s
+    private void EndRun(float delay)
+    {
         isOver = true;
         TimeScaleManager.Instance.Request(this, 0f);
         SetPlayerInput(false);
-        gameOverText.text = reason;
-        gameOverScreen.SetActive(true);
-        respawnTime = Time.unscaledTime + settings.gameOverDelay;
+        respawnTime = Time.unscaledTime + delay;
     }
 
     // switches the player scripts and the crosshair off for game over or a hack and back on after

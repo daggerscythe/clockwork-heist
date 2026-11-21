@@ -14,12 +14,15 @@ public class HackMinigame : MonoBehaviour
     [SerializeField] private PlayerController player;
     [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private PlayerInventory inventory;
+    [SerializeField] private PauseMenu pauseMenu;
     [SerializeField] private Transform tablet; // held under the player camera and raised to the face
     [SerializeField] private Transform tabletScreen; // quad on the tablet that shows the feed
     [SerializeField] private GameObject screen; // full screen feed and texts that take over once the tablet fills the view
     [SerializeField] private RawImage feed; // shows what the camera sees
     [SerializeField] private RenderTexture feedTexture; // the camera draws into this
     [SerializeField] private TMP_Text titleText;
+    [SerializeField] private GameObject timerDial; // clock dial with the seconds left shown while counting down
+    [SerializeField] private Image timerFill;
     [SerializeField] private TMP_Text timerText;
     [SerializeField] private TMP_Text warningText; // tells the player when guards are spotting them
     [SerializeField] private RectTransform markTemplate; // hidden ring copied onto every change found
@@ -45,6 +48,7 @@ public class HackMinigame : MonoBehaviour
     private Phase phase;
     private float phaseStart; // game time the phase began
     private float phaseEnd; // game time the phase is over
+    private float phaseLength; // s the phase lasts before any wrong click penalty
     private float raisedAmount; // 0 when the tablet is down and 1 when it fills the view
     private float lowerFrom; // how raised the tablet was when it started going down
     private bool noticed; // true once a guard has fully spotted the player or a whistleblower ran for the alarm during this hack
@@ -57,6 +61,7 @@ public class HackMinigame : MonoBehaviour
         screen.SetActive(false);
         tablet.gameObject.SetActive(false);
         markTemplate.gameObject.SetActive(false);
+        timerDial.SetActive(false);
         feed.texture = feedTexture;
         viewCamera = tablet.GetComponentInParent<Camera>();
         clickMask = ~LayerMask.GetMask("Player", "LightVolume", "Ignore Raycast");
@@ -74,7 +79,7 @@ public class HackMinigame : MonoBehaviour
 
         target.StartFeed(feedTexture);
         titleText.text = "";
-        timerText.text = "";
+        HideTimer();
         warningText.text = "";
         tablet.gameObject.SetActive(true);
         PlaceTablet(0f);
@@ -92,6 +97,9 @@ public class HackMinigame : MonoBehaviour
             Shut();
             return;
         }
+
+        // nothing moves and no clicks count while the pause menu is open
+        if (pauseMenu.IsOpen) return;
 
         float progress = Mathf.InverseLerp(phaseStart, phaseEnd, Time.time);
         bool timeUp = Time.time >= phaseEnd;
@@ -136,6 +144,7 @@ public class HackMinigame : MonoBehaviour
         phase = next;
         phaseStart = Time.time;
         phaseEnd = Time.time + duration;
+        phaseLength = duration;
     }
 
     // the tablet comes up and once it fills the view the full screen feed takes over
@@ -159,7 +168,7 @@ public class HackMinigame : MonoBehaviour
         if (!timeUp) return;
 
         titleText.text = "";
-        timerText.text = "";
+        HideTimer();
         StartPhase(Phase.Glitch, settings.hackGlitchTime);
     }
 
@@ -184,10 +193,19 @@ public class HackMinigame : MonoBehaviour
         else if (Mouse.current.leftButton.wasPressedThisFrame) Click(Mouse.current.position.ReadValue());
     }
 
-    // whole seconds left in the phase
+    // whole seconds left in the phase in the middle of a dial that empties as time runs out
     private void ShowTimer()
     {
-        timerText.text = Mathf.CeilToInt(Mathf.Max(0f, phaseEnd - Time.time)).ToString();
+        float left = Mathf.Max(0f, phaseEnd - Time.time);
+        timerDial.SetActive(true);
+        timerFill.fillAmount = left / phaseLength;
+        timerText.text = Mathf.CeilToInt(left).ToString();
+    }
+
+    // takes the dial off the screen
+    private void HideTimer()
+    {
+        timerDial.SetActive(false);
     }
 
     // warns the player about guards spotting them or an alarm run and remembers either for the kit
@@ -316,7 +334,7 @@ public class HackMinigame : MonoBehaviour
     {
         PutPropsBack();
         Shader.SetGlobalFloat(GlitchId, 0f);
-        timerText.text = "";
+        HideTimer();
         warningText.text = "";
 
         if (success)

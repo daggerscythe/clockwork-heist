@@ -99,7 +99,7 @@ public class PlayerController : MonoBehaviour
     private void Look()
     {
         if (LookLocked) return;
-        Vector2 delta = controls.Player.Look.ReadValue<Vector2>() * settings.lookSensitivity;
+        Vector2 delta = controls.Player.Look.ReadValue<Vector2>() * settings.lookSensitivity * GameOptions.Sensitivity;
 
         // turn the body left and right
         transform.Rotate(0f, delta.x, 0f);

@@ -5,24 +5,28 @@ using UnityEngine.UI;
 // every ability the wheel shows in slot order
 public enum Ability { Blink, TeleportGadget, Decoy, SleepDart, HackKit }
 
-// hold the middle mouse button to pick an ability from a ring while time slows
+// hold the middle mouse button to pick an ability from a pie chart while time slows
 public class AbilityWheel : MonoBehaviour
 {
     [SerializeField] private GameSettings settings;
     [SerializeField] private PlayerController player;
     [SerializeField] private PlayerInventory inventory;
     [SerializeField] private GameObject ring; // shown only while the wheel is open
-    [SerializeField] private Image[] slotImages; // one per ability in the order of the list above
+    [SerializeField] private Image[] slotImages; // one pie slice per ability in the order of the list above
+    [SerializeField] private Image[] slotIcons; // same order
     [SerializeField] private TMP_Text[] slotTexts; // same order
-    [SerializeField] private Color normalColor = new Color(0.1f, 0.1f, 0.15f, 0.8f); // slot that can be picked
-    [SerializeField] private Color hoverColor = new Color(0.9f, 0.7f, 0.2f, 0.9f); // slot under the pointer
-    [SerializeField] private Color selectedColor = new Color(0.3f, 0.5f, 0.9f, 0.9f); // slot picked right now
-    [SerializeField] private Color unavailableColor = new Color(0.3f, 0.3f, 0.3f, 0.5f); // slot that cannot be picked
+    [SerializeField] private RectTransform needle; // points where the mouse is steering
+    [SerializeField] private Color normalColor = new Color32(34, 32, 44, 225); // slot that can be picked
+    [SerializeField] private Color hoverColor = new Color32(214, 164, 80, 245); // slot under the pointer
+    [SerializeField] private Color selectedColor = new Color32(80, 150, 128, 240); // slot picked right now
+    [SerializeField] private Color unavailableColor = new Color32(84, 84, 92, 140); // slot that cannot be picked
+    [SerializeField] private Color unavailableIconColor = new Color(1f, 1f, 1f, 0.35f); // faded icon on a slot that cannot be picked
 
     private const float PickDistance = 40f; // px the pointer must move from the center before a slot is picked
     private const float MaxPointer = 120f; // px the pointer can move from the center
+    private const string CountColor = "#F0C478"; // amber for gadget counts
 
-    private static readonly string[] Names = { "Blink", "Teleport Gadget", "Decoy", "Sleep Dart", "Hack Kit" };
+    private static readonly string[] Names = { "Teleport", "Sticky Teleport", "Decoy", "Sleep Dart", "Hack Kit" };
 
     private PlayerControls controls;
     private Vector2 pointer; // pretend mouse pointer from the center because the real one is locked
@@ -38,6 +42,12 @@ public class AbilityWheel : MonoBehaviour
     public static string NameOf(Ability ability)
     {
         return Names[(int)ability];
+    }
+
+    // icon of an ability so the hud can show the same picture
+    public Sprite IconOf(Ability ability)
+    {
+        return slotIcons[(int)ability].sprite;
     }
 
     // input is created in the player controller awake so it is read here
@@ -56,7 +66,7 @@ public class AbilityWheel : MonoBehaviour
     // open on press steer the pointer while held and pick on release
     private void Update()
     {
-        // back to blink when the picked gadget runs out
+        // back to teleport when the picked gadget runs out
         if (!CanSelect(Selected)) Selected = Ability.Blink;
 
         // the wheel cannot open in the middle of aiming
@@ -70,12 +80,12 @@ public class AbilityWheel : MonoBehaviour
         if (!controls.Player.AbilityWheel.IsPressed()) Close();
     }
 
-    // blink always works gadgets need at least one and the hack kit is only used at cameras
+    // teleport always works gadgets need at least one and the hack kit is only used at cameras
     private bool CanSelect(Ability ability)
     {
         if (ability == Ability.Blink) return true;
         if (ability == Ability.HackKit) return false;
-        return inventory.Count(ability) > 0;
+        return inventory.Has(ability);
     }
 
     // shows the ring slows time and freezes the view
@@ -108,19 +118,30 @@ public class AbilityWheel : MonoBehaviour
         return Mathf.RoundToInt(fromTop / slotAngle) % slotImages.Length;
     }
 
-    // colors each slot and writes its name and count
+    // colors each slice fades icons that cannot be picked writes names and counts and turns the needle
     private void RefreshSlots()
     {
         for (int i = 0; i < slotImages.Length; i++)
         {
             Ability ability = (Ability)i;
+            bool canSelect = CanSelect(ability);
             Color color = normalColor;
-            if (!CanSelect(ability)) color = unavailableColor;
+            if (!canSelect) color = unavailableColor;
             else if (i == hovered) color = hoverColor;
             else if (ability == Selected) color = selectedColor;
 
             slotImages[i].color = color;
-            slotTexts[i].text = ability == Ability.Blink ? Names[i] : Names[i] + "\n" + inventory.Count(ability);
+
+            // the hack kit is never picked here but its icon stays bright while the player has kits
+            bool hasIt = ability == Ability.HackKit ? inventory.Has(ability) : canSelect;
+            slotIcons[i].color = hasIt ? Color.white : unavailableIconColor;
+            slotTexts[i].text = ability == Ability.Blink
+                ? Names[i]
+                : Names[i] + "\n<color=" + CountColor + ">" + inventory.CountText(ability) + "</color>";
         }
+
+        // the needle sprite points up so it turns a quarter less than the pointer angle
+        needle.gameObject.SetActive(hovered >= 0);
+        needle.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(pointer.y, pointer.x) * Mathf.Rad2Deg - 90f);
     }
 }

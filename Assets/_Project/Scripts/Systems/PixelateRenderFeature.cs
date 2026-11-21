@@ -9,6 +9,9 @@ public class PixelateRenderFeature : ScriptableRendererFeature
 {
     [SerializeField, Min(1)] private int pixelHeight = 270; // px tall the game is drawn at
 
+    // the pixelation setting turns this off to show the game at full resolution
+    public static bool Enabled { get; set; } = true;
+
     private PixelatePass pass;
 
     // makes the pass once when the renderer loads
@@ -24,6 +27,7 @@ public class PixelateRenderFeature : ScriptableRendererFeature
     // hands the pass to the renderer every frame
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
+        if (!Enabled) return;
         pass.pixelHeight = pixelHeight;
         renderer.EnqueuePass(pass);
     }

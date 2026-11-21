@@ -17,10 +17,10 @@ public class PlayerHealth : MonoBehaviour
         Restore();
     }
 
-    // lose health and end the run at zero
+    // lose health and end the run at zero unless the unlimited health cheat is on
     public void TakeDamage(float amount)
     {
-        if (Health <= 0f) return;
+        if (Health <= 0f || GameOptions.UnlimitedHealth) return;
         Health = Mathf.Max(0f, Health - amount);
         if (Health <= 0f) GameManager.Instance.GameOver("You died");
     }
