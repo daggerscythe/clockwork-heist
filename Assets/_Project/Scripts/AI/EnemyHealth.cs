@@ -9,10 +9,11 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
     private enum Condition { Alive, KnockedOut, Dead }
 
     [SerializeField] private GameSettings settings;
-    [SerializeField] private Transform model; // body and visor that lie down when the guard goes down
+    [SerializeField] private Transform model; // guard model and body collider that hide in a stash
+    [SerializeField] private Transform body; // capsule collider that lies down when the guard goes down
     [SerializeField] private GameObject detectionMeter;
 
-    private const float LyingHeight = 0.4f; // m the lying body sits above the floor
+    private const float LyingHeight = 0.4f; // m the lying body collider sits above the floor
     private const float StandUpSearch = 2f; // m to look for walkable floor when getting up
 
     // every active guard so others can look for bodies
@@ -20,6 +21,7 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
 
     private EnemyAI ai;
     private EnemySenses senses;
+    private GuardAnimator guardAnimator;
     private NavMeshAgent agent;
     private Condition condition;
     private float health; // health points
@@ -29,6 +31,7 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
     private Quaternion savedRotation; // how a downed guard lay at the last checkpoint
     private bool savedHidden; // true if he was in a stash at the last checkpoint
     private float savedWakeLeft; // s a knocked out guard had left at the last checkpoint
+    private Vector3 bodyStandPosition; // where the body collider sits while standing
 
     // true while standing and able to act
     public bool IsAlive => condition == Condition.Alive;
@@ -50,8 +53,10 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
     {
         ai = GetComponent<EnemyAI>();
         senses = GetComponent<EnemySenses>();
+        guardAnimator = GetComponent<GuardAnimator>();
         agent = GetComponent<NavMeshAgent>();
         health = settings.enemyMaxHealth;
+        bodyStandPosition = body.localPosition;
     }
 
     // join the list while in the world
@@ -137,6 +142,7 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
     public void RestoreState()
     {
         gameObject.SetActive(true);
+        guardAnimator.Snap();
 
         if (savedCondition == Condition.Alive)
         {
@@ -153,13 +159,15 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
         model.gameObject.SetActive(!savedHidden);
     }
 
-    // turns the guard into a body lying on the floor
+    // turns the guard into a body lying on the floor while the guard animator plays the fall
     private void GoDown(Condition newCondition)
     {
         condition = newCondition;
         SetBrain(false);
-        model.localPosition = Vector3.up * LyingHeight;
-        model.localRotation = Quaternion.Euler(90f, 0f, 0f);
+
+        // the collider lies forward along the ground where the model falls
+        body.localPosition = new Vector3(0f, LyingHeight, bodyStandPosition.y);
+        body.localRotation = Quaternion.Euler(90f, 0f, 0f);
     }
 
     // gets up on his own and looks around
@@ -175,8 +183,8 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
         condition = Condition.Alive;
         IsHidden = false;
         model.gameObject.SetActive(true);
-        model.localPosition = Vector3.zero;
-        model.localRotation = Quaternion.identity;
+        body.localPosition = bodyStandPosition;
+        body.localRotation = Quaternion.identity;
 
         // stand on the closest walkable floor so the agent can start again
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, StandUpSearch, NavMesh.AllAreas))

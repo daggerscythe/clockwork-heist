@@ -7,7 +7,8 @@ public class PlayerInteract : MonoBehaviour
 {
     [SerializeField] private GameSettings settings;
     [SerializeField] private Transform cameraTransform;
-    [SerializeField] private GameObject carriedModel; // body shown on the shoulder while carrying
+    [SerializeField] private GameObject carriedGuard; // guard model shown on the shoulder while carrying
+    [SerializeField] private GameObject carriedWhistleblower; // red cap model shown instead while carrying a whistleblower
     [SerializeField] private HackMinigame hackMinigame;
 
     private const float DropDistance = 0.8f; // m in front of the player a body is put down
@@ -36,7 +37,7 @@ public class PlayerInteract : MonoBehaviour
         player = GetComponent<PlayerController>();
         inventory = GetComponent<PlayerInventory>();
         lookMask = ~LayerMask.GetMask("Player", "LightVolume", "Ignore Raycast");
-        carriedModel.SetActive(false);
+        ShowCarried(null);
     }
 
     // input is created in the player controller awake so it is read here
@@ -51,7 +52,7 @@ public class PlayerInteract : MonoBehaviour
         carried = null;
         holdTime = 0f;
         player.IsCarrying = false;
-        carriedModel.SetActive(false);
+        ShowCarried(null);
     }
 
     // works out what e would do on whatever the player is looking at
@@ -152,7 +153,15 @@ public class PlayerInteract : MonoBehaviour
         carried = body;
         body.PickUp();
         player.IsCarrying = true;
-        carriedModel.SetActive(true);
+        ShowCarried(body);
+    }
+
+    // shows the shoulder model that matches the body or hides both for null
+    private void ShowCarried(EnemyHealth body)
+    {
+        bool whistleblower = body != null && body.GetComponent<EnemyAI>().IsWhistleblower;
+        carriedGuard.SetActive(body != null && !whistleblower);
+        carriedWhistleblower.SetActive(whistleblower);
     }
 
     // holding e fills up and then takes the coins and letting go starts over
@@ -182,7 +191,7 @@ public class PlayerInteract : MonoBehaviour
 
         carried = null;
         player.IsCarrying = false;
-        carriedModel.SetActive(false);
+        ShowCarried(null);
     }
 
     // puts the body on the floor in front and makes a thud guards can hear

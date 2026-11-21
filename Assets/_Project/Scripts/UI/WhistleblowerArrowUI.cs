@@ -35,13 +35,21 @@ public class WhistleblowerArrowUI : MonoBehaviour
         warning.SetActive(runners.Count > 0);
 
         // one arrow per runner and spare ones stay hidden
-        while (arrows.Count < runners.Count) arrows.Add(Instantiate(arrowTemplate, arrowTemplate.parent));
+        while (arrows.Count < runners.Count) arrows.Add(MakeArrow());
         for (int i = 0; i < arrows.Count; i++)
         {
             bool used = i < runners.Count;
             arrows[i].gameObject.SetActive(used);
             if (used) PlaceArrow(arrows[i], runners[i].transform.position + Vector3.up * AimHeight);
         }
+    }
+
+    // a copy of the template drawn where the template sits so the screens and menus above it stay on top
+    private RectTransform MakeArrow()
+    {
+        RectTransform arrow = Instantiate(arrowTemplate, arrowTemplate.parent);
+        arrow.SetSiblingIndex(arrowTemplate.GetSiblingIndex() + 1);
+        return arrow;
     }
 
     // puts an arrow on the screen edge in the direction of a world point and turns it to point that way

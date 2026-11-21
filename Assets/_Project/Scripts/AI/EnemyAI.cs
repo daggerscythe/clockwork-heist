@@ -43,6 +43,18 @@ public class EnemyAI : MonoBehaviour
     // true while a standing whistleblower is running for or pulling an alarm
     public bool IsRaisingAlarm => enabled && state == State.RaisingAlarm;
 
+    // true while a whistleblower is at the alarm hauling the lever
+    public bool IsPulling => IsRaisingAlarm && isPulling;
+
+    // true while the guard stands still looking around
+    public bool IsSearching => enabled && state == State.Confused;
+
+    // true for the red cap guards
+    public bool IsWhistleblower => isWhistleblower;
+
+    // game time of the last swing at the player or a decoy
+    public float LastSwingTime { get; private set; } = float.NegativeInfinity;
+
     // grab components and remember the post
     private void Awake()
     {
@@ -189,6 +201,7 @@ public class EnemyAI : MonoBehaviour
         {
             decoy.Dissipate();
             decoy = null;
+            LastSwingTime = Time.time;
             StartSearch(searchDuration);
             return;
         }
@@ -260,6 +273,7 @@ public class EnemyAI : MonoBehaviour
             playerHealth.TakeDamage(settings.enemyHitDamage);
             nextAttackTime = Time.time + settings.enemyAttackInterval;
         }
+        LastSwingTime = Time.time;
     }
 
     // stop and look around for a while
