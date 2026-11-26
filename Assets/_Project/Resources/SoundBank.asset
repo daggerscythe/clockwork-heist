@@ -20,11 +20,11 @@ MonoBehaviour:
   slowMoPitch: 0.5
   slowMoFade: 0.2
   musicFade: 1
-  walkStepLength: 0.75
-  runStepLength: 1.1
-  crouchStepVolume: 0.2
-  walkStepVolume: 0.6
-  runStepVolume: 1
+  walkStepLength: 1.4
+  runStepLength: 1.9
+  crouchStepVolume: 0.1
+  walkStepVolume: 0.3
+  runStepVolume: 0.5
   stepMarble:
   - {fileID: 8300000, guid: c0dc8c236fd2a0343917fc034209624d, type: 3}
   - {fileID: 8300000, guid: 3a0f22b5fccefd94ebf1098fab87c1a9, type: 3}
@@ -92,7 +92,9 @@ MonoBehaviour:
   guardGiveUp:
   - {fileID: 8300000, guid: a48c698988bc88843b96740f4008cb9b, type: 3}
   - {fileID: 8300000, guid: ba72e64505e113247974cc2f2deb3a25, type: 3}
-  guardWakeUp: {fileID: 8300000, guid: 1b15ce22bddadf64ca126c4097592364, type: 3}
+  guardWakeUp:
+  - {fileID: 8300000, guid: 1b15ce22bddadf64ca126c4097592364, type: 3}
+  - {fileID: 8300000, guid: adccb7a5b7e05b346b093375c87ae6b9, type: 3}
   alarmBell: {fileID: 8300000, guid: a10c7292cdacc5b40b3a4236175509f7, type: 3}
   gameOverSting: {fileID: 8300000, guid: cc6d15b3157a63b4a9ea2fa6f63fdb68, type: 3}
   spottedSting: {fileID: 8300000, guid: 4ff2511c043a13d478cf28502ee781ad, type: 3}

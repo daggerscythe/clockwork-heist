@@ -181,7 +181,7 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
     // gets up on his own and looks around
     private void WakeUp()
     {
-        Sfx.Voice(Sfx.Bank.guardWakeUp, transform.position);
+        Sfx.Voice(Sfx.Pick(Sfx.Bank.guardWakeUp), transform.position);
         StandUp();
         ai.WakeUp();
     }

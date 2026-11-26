@@ -25,7 +25,7 @@ public class MusicDirector : MonoBehaviour
 
         // the run ending stops the music so the game over sound plays alone
         bool over = GameManager.Instance.IsOver;
-        if (chased && !wasChased && !over) Sfx.Flat(Sfx.Bank.spottedSting);
+        if (chased && !wasChased && !over) Sfx.Flat(Sfx.Bank.spottedSting, 0.5f);
         wasChased = chased;
 
         // the alarm run music starts and stops at once

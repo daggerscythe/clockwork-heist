@@ -14,11 +14,11 @@ public class SoundBank : ScriptableObject
     public float slowMoPitch = 0.5f; // pitch of world sounds while time is slowed
     public float slowMoFade = 0.2f; // real s for that pitch to drop or come back
     public float musicFade = 1f; // real s for the chase music to fade in or out
-    public float walkStepLength = 0.75f; // m between steps when walking or crouching
-    public float runStepLength = 1.1f; // m between steps when sprinting or running
-    public float crouchStepVolume = 0.2f; // 0 to 1
-    public float walkStepVolume = 0.6f; // 0 to 1
-    public float runStepVolume = 1f; // 0 to 1
+    public float walkStepLength = 1.4f; // m between steps when walking or crouching
+    public float runStepLength = 1.9f; // m between steps when sprinting or running
+    public float crouchStepVolume = 0.1f; // 0 to 1
+    public float walkStepVolume = 0.3f; // 0 to 1
+    public float runStepVolume = 0.5f; // 0 to 1
 
     public AudioClip[] stepMarble;
     public AudioClip[] stepWood;
@@ -54,7 +54,7 @@ public class SoundBank : ScriptableObject
     public AudioClip[] guardHuh;
     public AudioClip[] guardHurt;
     public AudioClip[] guardGiveUp;
-    public AudioClip guardWakeUp;
+    public AudioClip[] guardWakeUp;
 
     public AudioClip alarmBell;
     public AudioClip gameOverSting;

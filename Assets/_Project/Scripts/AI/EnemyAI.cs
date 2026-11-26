@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class EnemyAI : MonoBehaviour
 {
     private enum State { Patrol, Suspicious, Alerted, Confused, RaisingAlarm }
+    private const float LostSightGrace = 1f; // s a chasing guard must go without seeing the player before searching
 
     [SerializeField] private GameSettings settings;
     [SerializeField] private Transform[] patrolPoints; // leave empty for a guard that stands still
@@ -33,6 +34,7 @@ public class EnemyAI : MonoBehaviour
     private float pullEndTime; // game time the alarm goes off
     private Vector3 postPosition; // where the guard was placed
     private Quaternion postRotation; // which way the guard was placed facing
+    private float lastSawPlayer; // game time a chasing guard last saw the player
 
     // true while the guard is chasing or fighting the player
     public bool IsAlerted => state == State.Alerted;
@@ -230,6 +232,7 @@ public class EnemyAI : MonoBehaviour
         agent.isStopped = false;
         agent.speed = settings.enemyRunSpeed;
         nextAttackTime = Time.time + settings.enemyAttackInterval;
+        lastSawPlayer = Time.time;
         Shout(senses.LastSeenPosition);
     }
 
@@ -254,10 +257,11 @@ public class EnemyAI : MonoBehaviour
         {
             // the path already leads to the last seen spot so just keep going and search there
             agent.isStopped = false;
-            if (Arrived()) StartSearch(settings.confusionTime);
+            if (Arrived() && Time.time - lastSawPlayer > LostSightGrace) StartSearch(settings.confusionTime);
             return;
         }
 
+        lastSawPlayer = Time.time;
         agent.SetDestination(target);
         bool inReach = Vector3.Distance(transform.position, target) <= settings.enemyAttackRange;
         agent.isStopped = inReach;
