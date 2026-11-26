@@ -26,6 +26,7 @@ public class TeleportGadget : ThrownGadget
         if (guard == null && TeleportSpot.Find(hit, playerBody.radius, playerBody.height, solidMask, out Vector3 center))
         {
             player.TeleportTo(center - Vector3.up * (playerBody.height / 2f));
+            Sfx.Flat(Sfx.Bank.teleportWhoosh);
             Destroy(gameObject);
             return;
         }
@@ -35,6 +36,7 @@ public class TeleportGadget : ThrownGadget
 
         // e can pick it back up and it disappears if left alone too long
         pickupCollider.enabled = true;
+        Sfx.At(Sfx.Bank.stickyLand, transform.position);
         Destroy(gameObject, settings.stuckGadgetDespawnSeconds);
     }
 }

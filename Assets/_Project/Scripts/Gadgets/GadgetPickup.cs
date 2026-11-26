@@ -14,6 +14,7 @@ public class GadgetPickup : MonoBehaviour, ICheckpointState
     // hands the gadgets to the player and hides the pickup so a checkpoint can bring it back
     public void Take(PlayerInventory inventory)
     {
+        Sfx.Flat(Sfx.Bank.pickupGadget);
         inventory.Add(gadget, amount);
         gameObject.SetActive(false);
     }

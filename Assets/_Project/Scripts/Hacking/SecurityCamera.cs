@@ -169,6 +169,7 @@ public class SecurityCamera : MonoBehaviour, ICheckpointState
     // guards in range come to check where the player was seen but still have to spot them themselves
     private void Report()
     {
+        Sfx.At(Sfx.Bank.cameraSpotted, lens.transform.position);
         Detection = 0f;
         reportEndTime = Time.time + settings.cameraReportTime;
         coneMaterial.color = reportingColor;

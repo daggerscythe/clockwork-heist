@@ -68,11 +68,13 @@ public class Dart : MonoBehaviour
         EnemyHealth target = hit.collider.GetComponentInParent<EnemyHealth>();
         if (target != null && target.IsAlive)
         {
+            Sfx.At(Sfx.Bank.dartHitBody, hit.point);
             target.KnockOut();
             Destroy(gameObject);
             return;
         }
 
+        Sfx.At(Sfx.Bank.dartHitSurface, hit.point);
         Noise.Make(hit.point, settings.dartMissNoiseRadius);
         Destroy(gameObject, StayTime);
     }

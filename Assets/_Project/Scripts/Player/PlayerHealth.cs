@@ -20,6 +20,8 @@ public class PlayerHealth : MonoBehaviour
     // lose health and end the run at zero unless the unlimited health cheat is on
     public void TakeDamage(float amount)
     {
+        Sfx.Flat(Sfx.Bank.batonHit);
+        Sfx.Flat(Sfx.Pick(Sfx.Bank.playerHurt));
         if (Health <= 0f || GameOptions.UnlimitedHealth) return;
         Health = Mathf.Max(0f, Health - amount);
         if (Health <= 0f) GameManager.Instance.GameOver("You died");

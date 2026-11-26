@@ -92,6 +92,7 @@ public class EnemyAI : MonoBehaviour
     public void Investigate(Vector3 point)
     {
         if (IgnoresDistractions()) return;
+        if (state == State.Patrol) Sfx.Voice(Sfx.Pick(Sfx.Bank.guardHuh), transform.position);
         state = State.Suspicious;
         decoy = null;
         searchDuration = settings.confusionTime;
@@ -201,7 +202,7 @@ public class EnemyAI : MonoBehaviour
         {
             decoy.Dissipate();
             decoy = null;
-            LastSwingTime = Time.time;
+            Sfx.At(Sfx.Bank.batonSwing, transform.position);
             StartSearch(searchDuration);
             return;
         }
@@ -235,6 +236,7 @@ public class EnemyAI : MonoBehaviour
     // nearby guards come to check the point but still need to spot the player themselves
     private void Shout(Vector3 point)
     {
+        Sfx.Voice(Sfx.Pick(Sfx.Bank.guardHey), transform.position);
         Collider[] hits = Physics.OverlapSphere(transform.position, settings.alertShoutRadius, enemyMask, QueryTriggerInteraction.Ignore);
         foreach (Collider hit in hits)
         {
@@ -273,7 +275,7 @@ public class EnemyAI : MonoBehaviour
             playerHealth.TakeDamage(settings.enemyHitDamage);
             nextAttackTime = Time.time + settings.enemyAttackInterval;
         }
-        LastSwingTime = Time.time;
+        Sfx.At(Sfx.Bank.batonSwing, transform.position);
     }
 
     // stop and look around for a while
@@ -289,7 +291,9 @@ public class EnemyAI : MonoBehaviour
     private void Confused()
     {
         transform.Rotate(0f, 360f / searchDuration * Time.deltaTime, 0f);
-        if (Time.time >= searchEndTime) StartPatrol();
+        if (Time.time < searchEndTime) return;
+        Sfx.Voice(Sfx.Pick(Sfx.Bank.guardGiveUp), transform.position);
+        StartPatrol();
     }
 
     // heads for the closest alarm at a run and a level without alarms changes nothing

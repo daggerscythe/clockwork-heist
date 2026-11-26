@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f6a0136f41bea147a52eb17e32d4f62, type: 3}
+  m_Name: SoundBank
+  m_EditorClassIdentifier: Assembly-CSharp::SoundBank
+  sfxGroup: {fileID: -8461277078411555046, guid: a20bcb1091df3104f943becd88fbe478, type: 2}
+  voiceGroup: {fileID: -4170654985923698619, guid: a20bcb1091df3104f943becd88fbe478, type: 2}
+  uiGroup: {fileID: -7810014096357424509, guid: a20bcb1091df3104f943becd88fbe478, type: 2}
+  sfxRange: 15
+  voiceRange: 25
+  slowMoPitch: 0.5
+  slowMoFade: 0.2
+  musicFade: 1
+  walkStepLength: 0.75
+  runStepLength: 1.1
+  crouchStepVolume: 0.2
+  walkStepVolume: 0.6
+  runStepVolume: 1
+  stepMarble:
+  - {fileID: 8300000, guid: c0dc8c236fd2a0343917fc034209624d, type: 3}
+  - {fileID: 8300000, guid: 3a0f22b5fccefd94ebf1098fab87c1a9, type: 3}
+  - {fileID: 8300000, guid: 3453245701c80d449981a60b98118ad0, type: 3}
+  - {fileID: 8300000, guid: 654b5fc27aabe1b4991c49f3c5d88be1, type: 3}
+  stepWood:
+  - {fileID: 8300000, guid: eaac8bd3d47853d41889ece850e84246, type: 3}
+  - {fileID: 8300000, guid: 2b0f7b044cddfb147baec89f7797df26, type: 3}
+  - {fileID: 8300000, guid: 6545a1d7f93347c419747338b16209c4, type: 3}
+  - {fileID: 8300000, guid: 82bc5f7d24c29604da7fc029b4ba6efa, type: 3}
+  stepMetal:
+  - {fileID: 8300000, guid: 8a527eb3d84a85e46b7a0618861a7eab, type: 3}
+  - {fileID: 8300000, guid: c62b919e09cdc4246b9aabfb3cde9d46, type: 3}
+  - {fileID: 8300000, guid: 975616fd450539b47961d8f150ac5723, type: 3}
+  - {fileID: 8300000, guid: 973410d09de89db46930d761f7a205f3, type: 3}
+  stepGrate:
+  - {fileID: 8300000, guid: 7add1e41daadd9c488f90748e31f67aa, type: 3}
+  - {fileID: 8300000, guid: cddd52f4c4baf204a97a5191789deec9, type: 3}
+  - {fileID: 8300000, guid: fd998a71d3e3e4f4bb1b626f264c3f74, type: 3}
+  - {fileID: 8300000, guid: 7268f0c69d3541e4fbd7f975072a4d0b, type: 3}
+  land: {fileID: 8300000, guid: 73cc93c57cd900f40ab3b2d382a3e5f8, type: 3}
+  playerHurt:
+  - {fileID: 8300000, guid: e5bdae054db01e74390ffe888bc344d4, type: 3}
+  - {fileID: 8300000, guid: 46b17e163ca632b4faf0e14ff319b1b9, type: 3}
+  - {fileID: 8300000, guid: 530866829b3b48a499ab97cdbcd432c8, type: 3}
+  - {fileID: 8300000, guid: 3e2406df4e2ef5744a8f1956c485e104, type: 3}
+  teleportWhoosh: {fileID: 8300000, guid: 8cb40c63aad4e2840b2830b352ca6de0, type: 3}
+  gadgetThrow: {fileID: 8300000, guid: dcd99cf440fee5a43ad53d27c26e05a4, type: 3}
+  stickyLand: {fileID: 8300000, guid: 3e78250e00d84fb4ea5c065e23e08e8b, type: 3}
+  decoySpawn: {fileID: 8300000, guid: bf7666cafecc0254fae93518ecc90e85, type: 3}
+  decoyDissipate: {fileID: 8300000, guid: c33f63fb4bf7c714ab07b593392ff73d, type: 3}
+  dartFire: {fileID: 8300000, guid: 0845653db47d1a04c87f4dce7bd59e1c, type: 3}
+  dartHitBody: {fileID: 8300000, guid: 67649f120e5a8324db854599b7a182d5, type: 3}
+  dartHitSurface: {fileID: 8300000, guid: a2e166723975cc24c8b6fd1a010e9185, type: 3}
+  pickupGadget: {fileID: 8300000, guid: 20dfadfae2cebc841a36a1eeccbdf815, type: 3}
+  drawBlade: {fileID: 8300000, guid: ff71a930a632a03419d221d139a5225a, type: 3}
+  drawClub: {fileID: 8300000, guid: 9e61a43331f10124cada7fe84af6163f, type: 3}
+  swingBlade:
+  - {fileID: 8300000, guid: 6611af81f15926e45a7f7af2169d23d6, type: 3}
+  - {fileID: 8300000, guid: bf1a878524a80ec4aad4e402ec048607, type: 3}
+  swingClub:
+  - {fileID: 8300000, guid: ba869a77c5bbccb4fa1b661b0037acd7, type: 3}
+  - {fileID: 8300000, guid: 200fa5b77e73ae843a8925da7f030cf0, type: 3}
+  bladeHit:
+  - {fileID: 8300000, guid: 303840c4360dc6a4bb114bbed83d426b, type: 3}
+  - {fileID: 8300000, guid: dcfa983853ff66f43bc041f92b2fd3c6, type: 3}
+  clubHit: {fileID: 8300000, guid: d53c3b2bb2a371944bd8bffb1aa09e02, type: 3}
+  batonSwing: {fileID: 8300000, guid: d5054b19ec0fcbe47ac77bd9d24c185a, type: 3}
+  batonHit: {fileID: 8300000, guid: b585b72bb52368840b1d046e23df13ac, type: 3}
+  bodyPickUp: {fileID: 8300000, guid: b3ad2771ec46b9a4fbfe24a18da7c35a, type: 3}
+  bodyDrop: {fileID: 8300000, guid: 8800f0ef31af3e04db6440b217aa50b5, type: 3}
+  bodyStash: {fileID: 8300000, guid: 29962b18aa74d5242879fae11f1475cf, type: 3}
+  lootCoins: {fileID: 8300000, guid: 0eee899e39b39f2439ea546efbcd6452, type: 3}
+  guardHey:
+  - {fileID: 8300000, guid: 4bbf6c1bfa432114eb401dbb427bc49c, type: 3}
+  - {fileID: 8300000, guid: 5cdd4ae333d92b447a256ed737e98be2, type: 3}
+  guardHuh:
+  - {fileID: 8300000, guid: 7aca5825faa549e46b8ff4e3daa1c657, type: 3}
+  - {fileID: 8300000, guid: fa9389cb9182dd34b9c9ebc35f85bdd9, type: 3}
+  - {fileID: 8300000, guid: 11bcca7662e449742894f58629679db3, type: 3}
+  guardHurt:
+  - {fileID: 8300000, guid: 76f7156b612a6f94babc050d140aa346, type: 3}
+  - {fileID: 8300000, guid: cc83e9ca9e9528c45a8f41cbd3d22904, type: 3}
+  - {fileID: 8300000, guid: eb240d83236e57e4fa1dae0cbf7d8c69, type: 3}
+  guardGiveUp:
+  - {fileID: 8300000, guid: a48c698988bc88843b96740f4008cb9b, type: 3}
+  - {fileID: 8300000, guid: ba72e64505e113247974cc2f2deb3a25, type: 3}
+  guardWakeUp: {fileID: 8300000, guid: 1b15ce22bddadf64ca126c4097592364, type: 3}
+  alarmBell: {fileID: 8300000, guid: a10c7292cdacc5b40b3a4236175509f7, type: 3}
+  gameOverSting: {fileID: 8300000, guid: cc6d15b3157a63b4a9ea2fa6f63fdb68, type: 3}
+  spottedSting: {fileID: 8300000, guid: 4ff2511c043a13d478cf28502ee781ad, type: 3}
+  cameraSpotted: {fileID: 8300000, guid: 317c3e04b1d9199409b0e96d2d76e1d4, type: 3}
+  hackTabletUp: {fileID: 8300000, guid: 82b6081ddc8f5d749b4c9b9af82c6f3b, type: 3}
+  hackTabletDown: {fileID: 8300000, guid: d1bc04a7b813cbc4e9bbb06a0c99a300, type: 3}
+  hackStatic: {fileID: 8300000, guid: bf0f0ebd1a469514aa82d9fcdcfe86b1, type: 3}
+  hackCorrect: {fileID: 8300000, guid: dbc2a1c3833beed4c86e5dc9ca592c83, type: 3}
+  hackWrong: {fileID: 8300000, guid: 95e3bdf1f5a167b4cbf4ba24b015446c, type: 3}
+  hackSuccess: {fileID: 8300000, guid: c99f70cab152a0443b9030b70935fd3f, type: 3}
+  hackFail: {fileID: 8300000, guid: 19e7c1ff812ebcf4591e703333c4a98c, type: 3}
+  hackWarning: {fileID: 8300000, guid: e3ffdc8e28c2dd74eae513665dfcf30c, type: 3}
+  uiHover: {fileID: 8300000, guid: 0f73c802cb6fdc7439f776f031e79dda, type: 3}
+  uiClick: {fileID: 8300000, guid: aee9a01bcaf89444aa622483d3eca38b, type: 3}
+  uiCheckpoint: {fileID: 8300000, guid: 8e2b3b7a841bafc4d9b42825ea6f30e1, type: 3}

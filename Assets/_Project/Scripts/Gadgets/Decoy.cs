@@ -33,6 +33,7 @@ public class Decoy : MonoBehaviour
     // a guard hit it so it vanishes
     public void Dissipate()
     {
+        Sfx.At(Sfx.Bank.decoyDissipate, transform.position);
         Destroy(gameObject);
     }
 }

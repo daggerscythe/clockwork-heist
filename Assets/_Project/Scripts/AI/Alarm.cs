@@ -47,6 +47,6 @@ public class Alarm : MonoBehaviour
     // locks the building down which ends the run
     public void Pull()
     {
-        GameManager.Instance.GameOver("The alarm was raised");
+        GameManager.Instance.GameOver("The alarm was raised", Sfx.Bank.alarmBell);
     }
 }

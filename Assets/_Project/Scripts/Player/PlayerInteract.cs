@@ -116,7 +116,7 @@ public class PlayerInteract : MonoBehaviour
         if (guard == null && loot != null && loot.HasCoins)
         {
             ShowPrompt("Take coins", true);
-            if (pressed) inventory.AddCoins(loot.TakeAll());
+            if (pressed) TakeCoins(loot);
             return;
         }
 
@@ -128,6 +128,15 @@ public class PlayerInteract : MonoBehaviour
     {
         Prompt = text;
         PromptHasKey = hasKey;
+    }
+
+    // takes every coin from loot with a jingle when there were any
+    private void TakeCoins(Loot loot)
+    {
+        int coins = loot.TakeAll();
+        if (coins == 0) return;
+        inventory.AddCoins(coins);
+        Sfx.Flat(Sfx.Bank.lootCoins);
     }
 
     // the first thing in front of the player as far as the hack range reaches
@@ -149,9 +158,10 @@ public class PlayerInteract : MonoBehaviour
     // loots the body then lifts it onto the shoulder
     private void PickUp(EnemyHealth body, Loot loot)
     {
-        if (loot != null) inventory.AddCoins(loot.TakeAll());
+        if (loot != null) TakeCoins(loot);
         carried = body;
         body.PickUp();
+        Sfx.Flat(Sfx.Bank.bodyPickUp);
         player.IsCarrying = true;
         ShowCarried(body);
     }
@@ -175,7 +185,7 @@ public class PlayerInteract : MonoBehaviour
 
         holdTime += Time.deltaTime;
         if (holdTime < settings.pickpocketHoldTime) return;
-        inventory.AddCoins(loot.TakeAll());
+        TakeCoins(loot);
         holdTime = 0f;
     }
 
@@ -186,7 +196,11 @@ public class PlayerInteract : MonoBehaviour
         ShowPrompt(stash != null ? "Hide body" : "Drop body", true);
         if (!pressed) return;
 
-        if (stash != null) carried.Hide(stash.ExitPoint.position, stash.ExitPoint.rotation);
+        if (stash != null)
+        {
+            carried.Hide(stash.ExitPoint.position, stash.ExitPoint.rotation);
+            Sfx.At(Sfx.Bank.bodyStash, stash.transform.position);
+        }
         else DropInFront();
 
         carried = null;
@@ -209,6 +223,6 @@ public class PlayerInteract : MonoBehaviour
             spot = floor.point;
 
         carried.Drop(spot, Quaternion.LookRotation(transform.right));
-        Noise.Make(spot, settings.noiseBodyDrop);
+        Sfx.At(Sfx.Bank.bodyDrop, spot);
     }
 }

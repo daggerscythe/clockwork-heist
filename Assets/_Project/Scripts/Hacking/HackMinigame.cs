@@ -28,6 +28,7 @@ public class HackMinigame : MonoBehaviour
     [SerializeField] private RectTransform markTemplate; // hidden ring copied onto every change found
 
     private const float ResultTime = 1f; // s the result shows before the tablet goes down
+    private const float WarningBeepGap = 1f; // s between warning beeps while a guard is onto the player
     private const float FeedEdge = 0.05f; // part of the feed at each edge where a prop counts as off screen
     private const float TurnAngle = 45f; // degrees a turned prop rotates
     private const float GlitchPeak = 1.5f; // above 1 so the static stays full for a moment around the switch
@@ -49,6 +50,7 @@ public class HackMinigame : MonoBehaviour
     private float phaseStart; // game time the phase began
     private float phaseEnd; // game time the phase is over
     private float phaseLength; // s the phase lasts before any wrong click penalty
+    private float nextWarningBeep; // game time the next warning beep may play
     private float raisedAmount; // 0 when the tablet is down and 1 when it fills the view
     private float lowerFrom; // how raised the tablet was when it started going down
     private bool noticed; // true once a guard has fully spotted the player or a whistleblower ran for the alarm during this hack
@@ -84,6 +86,7 @@ public class HackMinigame : MonoBehaviour
         tablet.gameObject.SetActive(true);
         PlaceTablet(0f);
         StartPhase(Phase.Raising, settings.hackTabletTime);
+        Sfx.Flat(Sfx.Bank.hackTabletUp);
     }
 
     // runs on game time because the world keeps going during a hack
@@ -170,6 +173,7 @@ public class HackMinigame : MonoBehaviour
         titleText.text = "";
         HideTimer();
         StartPhase(Phase.Glitch, settings.hackGlitchTime);
+        Sfx.Flat(Sfx.Bank.hackStatic);
     }
 
     // static rises to full hides the changes and fades away again
@@ -230,6 +234,13 @@ public class HackMinigame : MonoBehaviour
         else if (noticed) warningText.text = "You've been spotted!  Right click to get out";
         else if (spotting) warningText.text = "A guard is spotting you";
         else warningText.text = "";
+
+        // a beep every second while the warning shows
+        if (warningText.text != "" && Time.time >= nextWarningBeep)
+        {
+            Sfx.Flat(Sfx.Bank.hackWarning);
+            nextWarningBeep = Time.time + WarningBeepGap;
+        }
     }
 
     // changes random props on the feed while the static hides the switch
@@ -310,6 +321,7 @@ public class HackMinigame : MonoBehaviour
         if (clicked == null)
         {
             phaseEnd -= settings.hackWrongClickPenalty;
+            Sfx.Flat(Sfx.Bank.hackWrong);
             return;
         }
 
@@ -317,6 +329,7 @@ public class HackMinigame : MonoBehaviour
         if (!notFound.Remove(clicked)) return;
 
         AddMark(local);
+        Sfx.Flat(Sfx.Bank.hackCorrect);
         if (notFound.Count == 0) Finish(true, true);
     }
 
@@ -341,6 +354,7 @@ public class HackMinigame : MonoBehaviour
         {
             inventory.TryUse(Ability.HackKit);
             target.Hack();
+            Sfx.Flat(Sfx.Bank.hackSuccess);
             titleText.text = "Camera hacked";
         }
         else
@@ -348,6 +362,7 @@ public class HackMinigame : MonoBehaviour
             // a guard spotting the player is the risk they took so the kit is kept
             if (!noticed) inventory.TryUse(Ability.HackKit);
             target.FailHack();
+            Sfx.Flat(Sfx.Bank.hackFail);
             titleText.text = noticed ? "Hack interrupted. Kit kept" : "Hack failed. Kit used";
         }
 
@@ -358,6 +373,7 @@ public class HackMinigame : MonoBehaviour
     // the full screen feed hands back to the tablet which goes down from wherever it is
     private void Lower()
     {
+        Sfx.Flat(Sfx.Bank.hackTabletDown);
         screen.SetActive(false);
         tablet.gameObject.SetActive(true);
         Cursor.lockState = CursorLockMode.Locked;

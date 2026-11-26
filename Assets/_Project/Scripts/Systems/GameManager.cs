@@ -58,14 +58,16 @@ public class GameManager : MonoBehaviour
     public void SetCheckpoint(Vector3 position, Quaternion rotation)
     {
         SaveCheckpoint(position, rotation);
+        Sfx.Ui(Sfx.Bank.uiCheckpoint);
         checkpointNotice.SetActive(true);
         noticeEndTime = Time.unscaledTime + NoticeTime;
     }
 
-    // freezes the game shows why it ended and respawns after a short wait
-    public void GameOver(string reason)
+    // freezes the game shows why it ended plays the given sound or the game over sting and respawns after a short wait
+    public void GameOver(string reason, AudioClip sound = null)
     {
         if (isOver) return;
+        Sfx.Flat(sound != null ? sound : Sfx.Bank.gameOverSting);
         EndRun(settings.gameOverDelay);
         gameOverText.text = reason;
         gameOverScreen.SetActive(true);

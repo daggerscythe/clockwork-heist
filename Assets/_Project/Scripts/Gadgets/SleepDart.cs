@@ -77,6 +77,7 @@ public class SleepDart : MonoBehaviour
     private void Fire()
     {
         if (!inventory.TryUse(Ability.SleepDart)) return;
+        Sfx.Flat(Sfx.Bank.dartFire);
 
         Vector3 aimPoint = cameraTransform.position + cameraTransform.forward * AimDistance;
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, AimDistance, hitMask, QueryTriggerInteraction.Ignore))

@@ -20,6 +20,7 @@ public class DecoyGadget : ThrownGadget
             spot = floor.point;
 
         Instantiate(decoyPrefab, spot, Quaternion.identity);
+        Sfx.At(Sfx.Bank.decoySpawn, spot);
         Destroy(gameObject);
     }
 }

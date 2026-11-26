@@ -29,8 +29,16 @@ public class PauseMenu : MonoBehaviour
     {
         if (!Keyboard.current.escapeKey.wasPressedThisFrame) return;
 
-        if (settingsPanel.activeSelf) CloseSettings();
-        else if (IsOpen) Resume();
+        if (settingsPanel.activeSelf)
+        {
+            Sfx.Ui(Sfx.Bank.uiClick);
+            CloseSettings();
+        }
+        else if (IsOpen)
+        {
+            Sfx.Ui(Sfx.Bank.uiClick);
+            Resume();
+        }
         else if (!GameManager.Instance.IsOver) Open();
     }
 
@@ -38,6 +46,7 @@ public class PauseMenu : MonoBehaviour
     private void Open()
     {
         IsOpen = true;
+        AudioListener.pause = true;
         TimeScaleManager.Instance.Request(this, 0f);
 
         // during a hack the controls are already off and stay off after the pause
@@ -55,6 +64,7 @@ public class PauseMenu : MonoBehaviour
     public void Resume()
     {
         IsOpen = false;
+        AudioListener.pause = false;
         pausePanel.SetActive(false);
         settingsPanel.SetActive(false);
         TimeScaleManager.Instance.Release(this);
@@ -85,6 +95,7 @@ public class PauseMenu : MonoBehaviour
     // the quit to main menu button
     public void QuitToMainMenu()
     {
+        AudioListener.pause = false;
         SceneManager.LoadScene(mainMenuScene);
     }
 

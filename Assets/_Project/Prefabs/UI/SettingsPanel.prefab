@@ -1549,6 +1549,7 @@ GameObject:
   m_Component:
   - component: {fileID: 76455999071517773}
   - component: {fileID: 892933282595013573}
+  - component: {fileID: 8847661861761106962}
   m_Layer: 5
   m_Name: GadgetsToggle
   m_TagString: Untagged
@@ -1624,6 +1625,19 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 1
+--- !u!114 &8847661861761106962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4429604998684543677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2515234267826c24d96c7769946048a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiSound
+  hover: 0
 --- !u!1 &4480219962166652499
 GameObject:
   m_ObjectHideFlags: 0
@@ -2242,6 +2256,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1632399032097511329}
   - component: {fileID: 7100463566732406398}
+  - component: {fileID: 3523331961070748267}
   m_Layer: 5
   m_Name: PixelationToggle
   m_TagString: Untagged
@@ -2317,6 +2332,19 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 1
+--- !u!114 &3523331961070748267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5840216202223102890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2515234267826c24d96c7769946048a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiSound
+  hover: 0
 --- !u!1 &6208297948799249260
 GameObject:
   m_ObjectHideFlags: 0
@@ -2403,6 +2431,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5200529720133633171}
   - component: {fileID: 5191986075668080762}
+  - component: {fileID: 2312331709732805180}
   m_Layer: 5
   m_Name: HealthToggle
   m_TagString: Untagged
@@ -2478,6 +2507,19 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 1
+--- !u!114 &2312331709732805180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6589040669487509905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2515234267826c24d96c7769946048a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiSound
+  hover: 0
 --- !u!1 &7842741059967470110
 GameObject:
   m_ObjectHideFlags: 0

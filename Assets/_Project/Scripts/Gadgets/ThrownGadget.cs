@@ -65,6 +65,7 @@ public abstract class ThrownGadget : MonoBehaviour
         if (flightTime > FlightLimit)
         {
             inventory.Add(Kind, 1);
+            Sfx.Flat(Sfx.Bank.pickupGadget);
             Destroy(gameObject);
         }
     }

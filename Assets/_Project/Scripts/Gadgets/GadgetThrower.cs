@@ -124,5 +124,6 @@ public class GadgetThrower : MonoBehaviour
         ThrownGadget prefab = wheel.Selected == Ability.Decoy ? decoyPrefab : teleportGadgetPrefab;
         ThrownGadget gadget = Instantiate(prefab, origin, Quaternion.identity);
         gadget.Launch(origin, cameraTransform.forward * settings.throwSpeed);
+        Sfx.Flat(Sfx.Bank.gadgetThrow);
     }
 }

@@ -40,6 +40,7 @@ public class MeleeController : MonoBehaviour
         if (controls.Player.ToggleWeapon.WasPressedThisFrame())
         {
             bladeOut = !bladeOut;
+            Sfx.Flat(bladeOut ? Sfx.Bank.drawBlade : Sfx.Bank.drawClub);
             viewmodel.PlaySwitch(bladeOut, settings.weaponSwitchTime);
             readyTime = Time.time + settings.weaponSwitchTime;
             return;
@@ -55,6 +56,7 @@ public class MeleeController : MonoBehaviour
     {
         float swingTime = bladeOut ? settings.bladeSwingTime : settings.clubSwingTime;
         viewmodel.PlaySwing(swingTime);
+        Sfx.Flat(Sfx.Pick(bladeOut ? Sfx.Bank.swingBlade : Sfx.Bank.swingClub));
         readyTime = Time.time + swingTime;
 
         if (!Physics.SphereCast(cameraTransform.position, HitRadius, cameraTransform.forward, out RaycastHit hit, settings.takedownRange, hitMask, QueryTriggerInteraction.Ignore)) return;
@@ -65,12 +67,21 @@ public class MeleeController : MonoBehaviour
         // unaware and the player is outside its cone so this is a silent takedown
         if (target.IsUnaware(cameraTransform.position))
         {
+            HitSound(hit.point);
             if (bladeOut) target.Kill();
             else target.KnockOut();
             return;
         }
 
         // open combat only works with the blade
-        if (bladeOut) target.TakeDamage(settings.bladeDamage);
+        if (!bladeOut) return;
+        HitSound(hit.point);
+        target.TakeDamage(settings.bladeDamage);
+    }
+
+    // the blade cut or the club thud where the swing landed
+    private void HitSound(Vector3 point)
+    {
+        Sfx.At(bladeOut ? Sfx.Pick(Sfx.Bank.bladeHit) : Sfx.Bank.clubHit, point);
     }
 }

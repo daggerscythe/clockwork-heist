@@ -90,19 +90,27 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
     {
         if (!IsAlive) return;
         health -= amount;
-        if (health <= 0f) Kill();
-        else senses.NoticePlayer();
+        if (health <= 0f)
+        {
+            Kill();
+            return;
+        }
+
+        Sfx.Voice(Sfx.Pick(Sfx.Bank.guardHurt), transform.position);
+        senses.NoticePlayer();
     }
 
     // dead for good with no timer
     public void Kill()
     {
+        Sfx.At(Sfx.Bank.bodyDrop, transform.position);
         GoDown(Condition.Dead);
     }
 
     // out cold until the timer runs out
     public void KnockOut()
     {
+        Sfx.At(Sfx.Bank.bodyDrop, transform.position);
         wakeLeft = settings.knockoutDuration;
         GoDown(Condition.KnockedOut);
     }
@@ -173,6 +181,7 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
     // gets up on his own and looks around
     private void WakeUp()
     {
+        Sfx.Voice(Sfx.Bank.guardWakeUp, transform.position);
         StandUp();
         ai.WakeUp();
     }

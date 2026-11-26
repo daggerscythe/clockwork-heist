@@ -128,6 +128,7 @@ public class BlinkAbility : MonoBehaviour
     private void Teleport()
     {
         player.TeleportTo(targetCenter - Vector3.up * (controller.height / 2f));
+        Sfx.Flat(Sfx.Bank.teleportWhoosh);
         readyTime = Time.time + settings.blinkCooldown;
     }
 }

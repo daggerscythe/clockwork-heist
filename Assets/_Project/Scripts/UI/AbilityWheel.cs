@@ -103,7 +103,11 @@ public class AbilityWheel : MonoBehaviour
     // picks the hovered slot if it can be picked and puts everything back
     private void Close()
     {
-        if (hovered >= 0 && CanSelect((Ability)hovered)) Selected = (Ability)hovered;
+        if (hovered >= 0 && CanSelect((Ability)hovered))
+        {
+            Selected = (Ability)hovered;
+            Sfx.Ui(Sfx.Bank.uiClick);
+        }
         IsOpen = false;
         player.LookLocked = false;
         ring.SetActive(false);
