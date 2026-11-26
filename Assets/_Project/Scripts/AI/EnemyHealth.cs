@@ -15,6 +15,8 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
 
     private const float LyingHeight = 0.4f; // m the lying body collider sits above the floor
     private const float StandUpSearch = 2f; // m to look for walkable floor when getting up
+    private const float FallTime = 0.7f; // s into the fall when the body hits the floor
+    private float thudTime = -1f; // game time the fall thud plays or below 0 when none is waiting
 
     // every active guard so others can look for bodies
     public static readonly List<EnemyHealth> All = new List<EnemyHealth>();
@@ -74,6 +76,12 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
     // counts down to waking up and this stops while carried because the guard is turned off
     private void Update()
     {
+        // play the thud when the falling body reaches the floor
+        if (thudTime >= 0f && Time.time >= thudTime)
+        {
+            thudTime = -1f;
+            Sfx.At(Sfx.Bank.bodyDrop, transform.position);
+        }
         if (!IsKnockedOut) return;
         wakeLeft -= Time.deltaTime;
         if (wakeLeft <= 0f) WakeUp();
@@ -103,14 +111,14 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
     // dead for good with no timer
     public void Kill()
     {
-        Sfx.At(Sfx.Bank.bodyDrop, transform.position);
+        thudTime = Time.time + FallTime;
         GoDown(Condition.Dead);
     }
 
     // out cold until the timer runs out
     public void KnockOut()
     {
-        Sfx.At(Sfx.Bank.bodyDrop, transform.position);
+        thudTime = Time.time + FallTime;
         wakeLeft = settings.knockoutDuration;
         GoDown(Condition.KnockedOut);
     }
@@ -119,6 +127,7 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
     public void PickUp()
     {
         gameObject.SetActive(false);
+        thudTime = -1f;
     }
 
     // put back on the floor at a spot
@@ -165,6 +174,7 @@ public class EnemyHealth : MonoBehaviour, ICheckpointState
         GoDown(savedCondition);
         IsHidden = savedHidden;
         model.gameObject.SetActive(!savedHidden);
+        thudTime = -1f;
     }
 
     // turns the guard into a body lying on the floor while the guard animator plays the fall

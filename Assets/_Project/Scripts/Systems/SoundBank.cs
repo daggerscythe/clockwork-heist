@@ -49,6 +49,7 @@ public class SoundBank : ScriptableObject
     public AudioClip bodyDrop;
     public AudioClip bodyStash;
     public AudioClip lootCoins;
+    public AudioClip pickpocketRustle;
 
     public AudioClip[] guardHey;
     public AudioClip[] guardHuh;

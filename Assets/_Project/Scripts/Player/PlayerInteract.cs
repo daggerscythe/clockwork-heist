@@ -183,6 +183,7 @@ public class PlayerInteract : MonoBehaviour
             return;
         }
 
+        if (holdTime == 0f) Sfx.Flat(Sfx.Bank.pickpocketRustle); // rustle once as the hold starts
         holdTime += Time.deltaTime;
         if (holdTime < settings.pickpocketHoldTime) return;
         TakeCoins(loot);

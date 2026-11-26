@@ -78,6 +78,7 @@ MonoBehaviour:
   bodyDrop: {fileID: 8300000, guid: 8800f0ef31af3e04db6440b217aa50b5, type: 3}
   bodyStash: {fileID: 8300000, guid: 29962b18aa74d5242879fae11f1475cf, type: 3}
   lootCoins: {fileID: 8300000, guid: 0eee899e39b39f2439ea546efbcd6452, type: 3}
+  pickpocketRustle: {fileID: 8300000, guid: 67e802fcaf7e84c4b8d20fa7f75763cf, type: 3}
   guardHey:
   - {fileID: 8300000, guid: 4bbf6c1bfa432114eb401dbb427bc49c, type: 3}
   - {fileID: 8300000, guid: 5cdd4ae333d92b447a256ed737e98be2, type: 3}

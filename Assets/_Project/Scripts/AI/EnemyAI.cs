@@ -274,6 +274,8 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
+        agent.velocity = Vector3.zero; // stop dead so the guard never slides into the player
+
         FaceTowards(target);
         if (Time.time >= nextAttackTime)
         {
