@@ -204,6 +204,7 @@ public class EnemyAI : MonoBehaviour
         {
             decoy.Dissipate();
             decoy = null;
+            LastSwingTime = Time.time;
             Sfx.At(Sfx.Bank.batonSwing, transform.position);
             StartSearch(searchDuration);
             return;
@@ -278,8 +279,9 @@ public class EnemyAI : MonoBehaviour
         {
             playerHealth.TakeDamage(settings.enemyHitDamage);
             nextAttackTime = Time.time + settings.enemyAttackInterval;
+            LastSwingTime = Time.time;
+            Sfx.At(Sfx.Bank.batonSwing, transform.position);
         }
-        Sfx.At(Sfx.Bank.batonSwing, transform.position);
     }
 
     // stop and look around for a while
