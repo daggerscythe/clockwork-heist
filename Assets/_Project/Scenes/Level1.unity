@@ -54317,7 +54317,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 556738013d9ae864b9750c558889ddf4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShadowTint
-  tint: {r: 0.47058824, g: 0.39215687, b: 0.627451, a: 1}
+  tint: {r: 0.11764706, g: 0.07058824, b: 0.21568628, a: 1}
+  amount: 0.02
 --- !u!1001 &931281931
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -92351,6 +92352,14 @@ PrefabInstance:
     - target: {fileID: 3487199558481762031, guid: 83d150da63eef2b44aff65897325632d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6149212750492426214, guid: 83d150da63eef2b44aff65897325632d, type: 3}
+      propertyPath: calmColor.a
+      value: 0.039215688
+      objectReference: {fileID: 0}
+    - target: {fileID: 6149212750492426214, guid: 83d150da63eef2b44aff65897325632d, type: 3}
+      propertyPath: hackedColor.a
+      value: 0.039215688
       objectReference: {fileID: 0}
     - target: {fileID: 6149212750492426214, guid: 83d150da63eef2b44aff65897325632d, type: 3}
       propertyPath: props.Array.size

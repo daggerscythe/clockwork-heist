@@ -6,11 +6,10 @@ public class PlayerStealth : MonoBehaviour
 {
     [SerializeField] private GameSettings settings;
 
-    private const float ChestProbe = 0.1f; // m radius of the shadow check at the chest
+    private const float HeadBelowTop = 0.2f; // m from the top of the capsule to the eyes
 
     private PlayerController player;
     private CharacterController controller;
-    private int shadowMask; // only shadow volumes
 
     // how far away enemies can hear player
     public float NoiseRadius { get; private set; }
@@ -22,7 +21,6 @@ public class PlayerStealth : MonoBehaviour
     {
         player = GetComponent<PlayerController>();
         controller = GetComponent<CharacterController>();
-        shadowMask = LayerMask.GetMask("ShadowVolume");
     }
 
     // work out the noise and visibility every frame
@@ -53,11 +51,12 @@ public class PlayerStealth : MonoBehaviour
         return multiplier;
     }
 
-    // true when the middle of the player is inside a shadow volume
+    // true when no lamp reaches the player's head or chest the two points guards look for
     private bool IsInShadow()
     {
         Vector3 chest = transform.position + Vector3.up * (controller.height / 2f);
-        return Physics.CheckSphere(chest, ChestProbe, shadowMask, QueryTriggerInteraction.Collide);
+        Vector3 head = transform.position + Vector3.up * (controller.height - HeadBelowTop);
+        return !Lamplight.IsLit(chest) && !Lamplight.IsLit(head);
     }
 
     // draws the noise ring in the scene view when selected

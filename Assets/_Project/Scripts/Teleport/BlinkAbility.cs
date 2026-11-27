@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// hold right click to aim and let go to teleport into a shadow
+// hold right click to aim and let go to teleport anywhere out of lamplight
 [RequireComponent(typeof(PlayerController))]
 public class BlinkAbility : MonoBehaviour
 {
@@ -12,7 +12,6 @@ public class BlinkAbility : MonoBehaviour
     [SerializeField] private Material illegalMaterial; // red
 
     private const float ShadowStep = 0.1f; // m between the checks back along the aim for the far edge of a shadow
-    private const float ShadowProbe = 0.05f; // m radius of one shadow check
     private const float FloorFacing = 0.5f; // a surface that faces up more than this is a floor and not a wall
     private const float MinAirDistance = 2f; // m air targets closer than this are skipped so aiming at a lit spot never hops the player a step
 
@@ -20,7 +19,6 @@ public class BlinkAbility : MonoBehaviour
     private CharacterController controller;
     private PlayerControls controls;
     private int solidMask; // everything the player can bump into
-    private int shadowMask; // only shadow volumes
     private bool isLegal;
     private bool landsOnFloor; // false when the target is on a wall or in the air so the player can grab a ledge there
     private Vector3 targetCenter; // where the middle of the capsule would end up
@@ -34,7 +32,6 @@ public class BlinkAbility : MonoBehaviour
     {
         player = GetComponent<PlayerController>();
         controller = GetComponent<CharacterController>();
-        shadowMask = LayerMask.GetMask("ShadowVolume");
         solidMask = ~LayerMask.GetMask("Player", "ShadowVolume", "Ignore Raycast");
         marker.gameObject.SetActive(false);
     }
@@ -125,10 +122,11 @@ public class BlinkAbility : MonoBehaviour
         isLegal = false;
     }
 
-    // true when a point is inside a shadow volume
-    private bool InShadow(Vector3 point)
+    // true when no part of the capsule at this center touches lamplight
+    private bool InShadow(Vector3 center)
     {
-        return Physics.CheckSphere(point, ShadowProbe, shadowMask, QueryTriggerInteraction.Collide);
+        Vector3 toEnd = Vector3.up * (controller.height / 2f - controller.radius);
+        return !Lamplight.IsLit(center) && !Lamplight.IsLit(center + toEnd) && !Lamplight.IsLit(center - toEnd);
     }
 
     // moves the marker to the target and colors it green or red

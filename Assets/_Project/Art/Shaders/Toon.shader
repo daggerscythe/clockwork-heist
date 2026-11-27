@@ -45,8 +45,9 @@ Shader "Clockwork Heist/Toon"
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
 
-            // purple added wherever no light reaches so shadows read at a glance and the shadow tint script sets it
-            half4 _ShadowTint;
+            // the shadow tint script sets both so shadows read at a glance
+            half4 _ShadowTint; // dark purple that unlit parts lean toward
+            float _ShadowTintAmount; // how far unlit parts lean toward it from 0 to 1
 
             struct Attributes
             {
@@ -118,11 +119,13 @@ Shader "Clockwork Heist/Toon"
                 // cap at fully lit but keep the light color so a strong lamp makes one flat pool
                 half brightness = max(lighting.r, max(lighting.g, lighting.b));
                 lighting /= max(brightness, 1);
-                brightness = min(brightness, 1);
 
-                // ambient keeps dark areas from going black and the shadow tint only adds where no light reaches
-                half3 total = SampleSH(normalWS) + lighting + _ShadowTint.rgb * (1 - brightness);
-                return half4(albedo * total, 1);
+                // ambient keeps dark areas from going black
+                half3 color = albedo * (SampleSH(normalWS) + lighting);
+
+                // unlit parts stay dark but lean toward the purple and lit parts keep their colors
+                color = lerp(color, _ShadowTint.rgb, _ShadowTintAmount * (1 - saturate(brightness)));
+                return half4(color, 1);
             }
             ENDHLSL
         }
