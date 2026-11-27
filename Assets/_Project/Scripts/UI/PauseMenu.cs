@@ -31,6 +31,9 @@ public class PauseMenu : MonoBehaviour
     {
         if (!Keyboard.current.escapeKey.wasPressedThisFrame) return;
 
+        // a note card is up and closes with its own buttons
+        if (NotePopup.IsOpen) return;
+
         if (settingsPanel.activeSelf)
         {
             Sfx.Ui(Sfx.Bank.uiClick);

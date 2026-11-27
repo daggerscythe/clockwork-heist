@@ -29,6 +29,8 @@ public class MainMenu : MonoBehaviour
     // the play button
     public void Play()
     {
+        // a new run starts with the tutorial on
+        GameOptions.SetTutorialOff(false);
         SceneManager.LoadScene(firstScene);
     }
 

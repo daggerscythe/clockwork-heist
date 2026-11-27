@@ -23,6 +23,7 @@ public class HUD : MonoBehaviour
     [SerializeField] private TMP_Text hintText; // tip from a hint trigger the keycard or the exit
     [SerializeField] private float hintTime = 8f; // real s a tip stays up
     [SerializeField, TextArea] private string menuNote = "You can access all notes in the menu (Esc)."; // shown once after the first note
+    [SerializeField] private NotePopup notePopup; // card that stops the game for a tutorial note
 
     private const string CountColor = "#F0C478"; // amber for gadget counts
     private static bool menuNoteDone; // the menu note shows once each time the game starts
@@ -39,12 +40,12 @@ public class HUD : MonoBehaviour
         hintEndTime = Time.unscaledTime + hintTime;
     }
 
-    // a tutorial tip written down with the pen sound and kept for the notes menu
+    // a tutorial tip kept for the notes menu and shown on a card that stops the game unless the tutorial is off
     public void ShowNote(string text)
     {
         Notes.Add(text);
-        Sfx.Ui(Sfx.Bank.noteScribble);
-        ShowHint(text);
+        if (GameOptions.TutorialOff) return;
+        notePopup.Show(text);
 
         // the first note of the run is followed by the one about the notes menu
         if (menuNoteDone) return;
@@ -80,8 +81,8 @@ public class HUD : MonoBehaviour
         // a tip clears itself in real time so slow motion doesn't hold it up
         if (hintText.text != "" && Time.unscaledTime >= hintEndTime) hintText.text = "";
 
-        // a waiting note takes the plate as soon as it is free
-        if (hintText.text == "" && waitingNote != "")
+        // the menu note takes the plate once the note card is closed and the plate is free
+        if (hintText.text == "" && waitingNote != "" && !NotePopup.IsOpen)
         {
             Sfx.Ui(Sfx.Bank.noteScribble);
             ShowHint(waitingNote);

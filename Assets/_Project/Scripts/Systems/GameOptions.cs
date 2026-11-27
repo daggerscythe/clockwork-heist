@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// player settings saved between runs and cheats that reset every launch
+// player settings saved between runs and cheats and the tutorial switch that reset every launch
 public static class GameOptions
 {
     public const float MinSensitivity = 0.25f; // lowest mouse sensitivity multiplier
@@ -25,6 +25,9 @@ public static class GameOptions
     // guard hits do no damage
     public static bool UnlimitedHealth { get; private set; }
 
+    // tutorial notes and the guide arrow are off for the rest of this run
+    public static bool TutorialOff { get; private set; }
+
     // reads the saved settings before the first scene loads and turns the cheats off
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Load()
@@ -34,6 +37,7 @@ public static class GameOptions
         Sensitivity = PlayerPrefs.GetFloat(SensitivityKey, 1f);
         UnlimitedGadgets = false;
         UnlimitedHealth = false;
+        TutorialOff = false;
         Apply();
     }
 
@@ -73,6 +77,12 @@ public static class GameOptions
     public static void SetUnlimitedHealth(bool on)
     {
         UnlimitedHealth = on;
+    }
+
+    // the turn off tutorial button and a new run from the main menu
+    public static void SetTutorialOff(bool off)
+    {
+        TutorialOff = off;
     }
 
     // hands the values to the systems that use them
