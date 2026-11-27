@@ -90,6 +90,26 @@ public class PlayerInteract : MonoBehaviour
             return;
         }
 
+        // the floor objective like the vault keycard
+        ObjectivePickup objective = target != null ? target.GetComponent<ObjectivePickup>() : null;
+        if (objective != null)
+        {
+            holdTime = 0f;
+            ShowPrompt("Take the " + objective.DisplayName, true);
+            if (pressed) objective.Take();
+            return;
+        }
+
+        // a shut door opens unless it waits for an objective the player doesn't have yet
+        Door door = target != null ? target.GetComponentInParent<Door>() : null;
+        if (door != null && !door.IsOpen)
+        {
+            holdTime = 0f;
+            string locked = door.LockedReason;
+            ShowPrompt(locked ?? "Open door", locked == null);
+            if (pressed && locked == null) door.Open();
+            return;
+        }
         EnemyHealth guard = target != null ? target.GetComponentInParent<EnemyHealth>() : null;
         Loot loot = target != null ? target.GetComponentInParent<Loot>() : null;
 

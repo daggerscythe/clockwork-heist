@@ -71,6 +71,10 @@ public class SoundBank : ScriptableObject
     public AudioClip hackFail;
     public AudioClip hackWarning;
 
+    public AudioClip objectivePickup;
+    public AudioClip objectiveSting;
+    public AudioClip doorOpen;
+
     public AudioClip uiHover;
     public AudioClip uiClick;
     public AudioClip uiCheckpoint;

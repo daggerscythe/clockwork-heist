@@ -20,11 +20,21 @@ public class HUD : MonoBehaviour
     [SerializeField] private Image holdFill;
     [SerializeField] private GameObject crosshair; // dot in the middle of the screen
     [SerializeField] private GameObject crosshairRing; // ring around the dot while e can be used
+    [SerializeField] private TMP_Text hintText; // tip from a hint trigger the keycard or the exit
+    [SerializeField] private float hintTime = 8f; // real s a tip stays up
 
     private const string CountColor = "#F0C478"; // amber for gadget counts
+    private float hintEndTime; // real time the tip clears
 
     // the crosshair is on by default and other scripts can hide it for menus or cutscenes
     public bool CrosshairVisible { get; set; } = true;
+
+    // shows a tip that clears itself after the hint time and replaces any tip already up
+    public void ShowHint(string text)
+    {
+        hintText.text = text;
+        hintEndTime = Time.unscaledTime + hintTime;
+    }
 
     // keep everything matching the player
     private void Update()
@@ -51,6 +61,8 @@ public class HUD : MonoBehaviour
         holdBar.SetActive(interact.HoldFraction > 0f);
         holdFill.rectTransform.anchorMax = new Vector2(interact.HoldFraction, 1f);
 
+        // a tip clears itself in real time so slow motion doesn't hold it up
+        if (hintText.text != "" && Time.unscaledTime >= hintEndTime) hintText.text = "";
         crosshair.SetActive(CrosshairVisible);
         crosshairRing.SetActive(CrosshairVisible && interact.PromptHasKey);
     }

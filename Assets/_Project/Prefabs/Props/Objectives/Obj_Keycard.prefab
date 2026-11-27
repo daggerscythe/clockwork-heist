@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Obj_Keycard
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8ddea0381f7a43f499edce56e2e195bd, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59,6 +63,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8ddea0381f7a43f499edce56e2e195bd, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1107356855759583882}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8ddea0381f7a43f499edce56e2e195bd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1016463485358756865}
   m_SourcePrefab: {fileID: 100100000, guid: 8ddea0381f7a43f499edce56e2e195bd, type: 3}
 --- !u!1 &8062099435044394540 stripped
 GameObject:
@@ -84,5 +91,20 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.18, y: 0.11, z: 0.016000003}
+  m_Size: {x: 0.4, y: 0.3, z: 0.3}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1016463485358756865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8062099435044394540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59ccaa2012b4c934b9044f024075e858, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectivePickup
+  displayName: vault keycard
+  takenHint: Vault keycard taken. The service shaft to the black market is at the
+    top of the construction site, west of the lobby.
