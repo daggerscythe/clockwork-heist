@@ -20,6 +20,7 @@ MonoBehaviour:
   slowMoPitch: 0.5
   slowMoFade: 0.2
   musicFade: 1
+  spottedStingVolume: 0.1
   walkStepLength: 1.4
   runStepLength: 1.9
   crouchStepVolume: 0.1
@@ -114,3 +115,4 @@ MonoBehaviour:
   uiHover: {fileID: 8300000, guid: 0f73c802cb6fdc7439f776f031e79dda, type: 3}
   uiClick: {fileID: 8300000, guid: aee9a01bcaf89444aa622483d3eca38b, type: 3}
   uiCheckpoint: {fileID: 8300000, guid: 8e2b3b7a841bafc4d9b42825ea6f30e1, type: 3}
+  noteScribble: {fileID: 8300000, guid: 3c9f642ba35e45049bd016ded0f77b9f, type: 3}

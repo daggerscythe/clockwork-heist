@@ -22,9 +22,12 @@ public class HUD : MonoBehaviour
     [SerializeField] private GameObject crosshairRing; // ring around the dot while e can be used
     [SerializeField] private TMP_Text hintText; // tip from a hint trigger the keycard or the exit
     [SerializeField] private float hintTime = 8f; // real s a tip stays up
+    [SerializeField, TextArea] private string menuNote = "You can access all notes in the menu (Esc)."; // shown once after the first note
 
     private const string CountColor = "#F0C478"; // amber for gadget counts
+    private static bool menuNoteDone; // the menu note shows once each time the game starts
     private float hintEndTime; // real time the tip clears
+    private string waitingNote = ""; // note that shows once the plate is free
 
     // the crosshair is on by default and other scripts can hide it for menus or cutscenes
     public bool CrosshairVisible { get; set; } = true;
@@ -34,6 +37,19 @@ public class HUD : MonoBehaviour
     {
         hintText.text = text;
         hintEndTime = Time.unscaledTime + hintTime;
+    }
+
+    // a tutorial tip written down with the pen sound and kept for the notes menu
+    public void ShowNote(string text)
+    {
+        Notes.Add(text);
+        Sfx.Ui(Sfx.Bank.noteScribble);
+        ShowHint(text);
+
+        // the first note of the run is followed by the one about the notes menu
+        if (menuNoteDone) return;
+        menuNoteDone = true;
+        waitingNote = menuNote;
     }
 
     // keep everything matching the player
@@ -63,6 +79,15 @@ public class HUD : MonoBehaviour
 
         // a tip clears itself in real time so slow motion doesn't hold it up
         if (hintText.text != "" && Time.unscaledTime >= hintEndTime) hintText.text = "";
+
+        // a waiting note takes the plate as soon as it is free
+        if (hintText.text == "" && waitingNote != "")
+        {
+            Sfx.Ui(Sfx.Bank.noteScribble);
+            ShowHint(waitingNote);
+            waitingNote = "";
+        }
+
         crosshair.SetActive(CrosshairVisible);
         crosshairRing.SetActive(CrosshairVisible && interact.PromptHasKey);
     }

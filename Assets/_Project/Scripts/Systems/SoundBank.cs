@@ -14,6 +14,7 @@ public class SoundBank : ScriptableObject
     public float slowMoPitch = 0.5f; // pitch of world sounds while time is slowed
     public float slowMoFade = 0.2f; // real s for that pitch to drop or come back
     public float musicFade = 1f; // real s for the chase music to fade in or out
+    public float spottedStingVolume = 0.25f; // 0 to 1 the spotted sting goes through the sfx group at full level otherwise
     public float walkStepLength = 1.4f; // m between steps when walking or crouching
     public float runStepLength = 1.9f; // m between steps when sprinting or running
     public float crouchStepVolume = 0.1f; // 0 to 1
@@ -78,6 +79,7 @@ public class SoundBank : ScriptableObject
     public AudioClip uiHover;
     public AudioClip uiClick;
     public AudioClip uiCheckpoint;
+    public AudioClip noteScribble;
 
     // the footstep set for a kind of floor
     public AudioClip[] StepsFor(Surface surface)

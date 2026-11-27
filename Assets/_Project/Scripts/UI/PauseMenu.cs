@@ -2,12 +2,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-// esc stops the game and opens the pause menu with the settings layered on top
+// esc stops the game and opens the pause menu with the settings or the notes layered on top
 public class PauseMenu : MonoBehaviour
 {
     [SerializeField] private PlayerController player;
     [SerializeField] private GameObject pausePanel; // dark backdrop and the pause buttons
     [SerializeField] private GameObject settingsPanel; // opens on top of the pause panel
+    [SerializeField] private GameObject notesPanel; // opens on top of the pause panel like the settings
     [SerializeField] private string mainMenuScene = "MainMenu"; // scene quit to main menu loads
 
     private bool inputWasOn; // the player scripts were on when the menu opened
@@ -17,14 +18,15 @@ public class PauseMenu : MonoBehaviour
     // true while the game is paused
     public bool IsOpen { get; private set; }
 
-    // both layers start hidden
+    // every layer starts hidden
     private void Awake()
     {
         pausePanel.SetActive(false);
         settingsPanel.SetActive(false);
+        notesPanel.SetActive(false);
     }
 
-    // esc opens the menu closes the settings layer or resumes
+    // esc opens the menu closes the settings or notes layer or resumes
     private void Update()
     {
         if (!Keyboard.current.escapeKey.wasPressedThisFrame) return;
@@ -33,6 +35,11 @@ public class PauseMenu : MonoBehaviour
         {
             Sfx.Ui(Sfx.Bank.uiClick);
             CloseSettings();
+        }
+        else if (notesPanel.activeSelf)
+        {
+            Sfx.Ui(Sfx.Bank.uiClick);
+            notesPanel.SetActive(false);
         }
         else if (IsOpen)
         {
@@ -67,6 +74,7 @@ public class PauseMenu : MonoBehaviour
         AudioListener.pause = false;
         pausePanel.SetActive(false);
         settingsPanel.SetActive(false);
+        notesPanel.SetActive(false);
         TimeScaleManager.Instance.Release(this);
         if (inputWasOn) GameManager.Instance.SetPlayerInput(true);
         Cursor.lockState = cursorLock;
@@ -83,6 +91,12 @@ public class PauseMenu : MonoBehaviour
     public void CloseSettings()
     {
         settingsPanel.SetActive(false);
+    }
+
+    // the notes button
+    public void OpenNotes()
+    {
+        notesPanel.SetActive(true);
     }
 
     // the restart button closes the menu and respawns at the last checkpoint

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// a trigger that shows a tip on the hud the first time the player walks in
+// a trigger that shows a tip on the hud the first time the player walks in and keeps it as a note
 [RequireComponent(typeof(Collider))]
 public class HintTrigger : MonoBehaviour
 {
@@ -15,6 +15,6 @@ public class HintTrigger : MonoBehaviour
         if (shown || !other.CompareTag("Player")) return;
         shown = true;
         foreach (HintTrigger twin in twins) twin.shown = true;
-        FindAnyObjectByType<HUD>().ShowHint(hint);
+        FindAnyObjectByType<HUD>().ShowNote(hint);
     }
 }
