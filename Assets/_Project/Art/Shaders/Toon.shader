@@ -5,7 +5,6 @@ Shader "Clockwork Heist/Toon"
         [MainTexture] _BaseMap("Base Map", 2D) = "white" {}
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         _Bands("Light Bands", Range(1, 4)) = 2
-        _DarkTint("Dark Tint", Color) = (0, 0, 0, 1)
     }
 
     SubShader
@@ -20,7 +19,6 @@ Shader "Clockwork Heist/Toon"
             float4 _BaseMap_ST;
             half4 _BaseColor;
             half _Bands; // number of light steps between dark and fully lit
-            half4 _DarkTint; // extra light only where the surface is dark and black means off
         CBUFFER_END
         ENDHLSL
 
@@ -46,6 +44,9 @@ Shader "Clockwork Heist/Toon"
 
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
+
+            // purple added wherever no light reaches so shadows read at a glance and the shadow tint script sets it
+            half4 _ShadowTint;
 
             struct Attributes
             {
@@ -76,10 +77,14 @@ Shader "Clockwork Heist/Toon"
             // ignores tiny amounts of light so faces at a grazing angle stay dark
             static const half BandEdge = 0.05;
 
+            // the most a light's strength can scale its reach so tiny distances never overflow
+            static const float MaxReach = 1000.0;
+
             // how much one light hits this spot snapped into flat bands then colored by the light
-            half3 BandedLight(Light light, float3 normalWS)
+            // strength scales the falloff so a strong lamp lights everything inside its range and cone with a sharp edge
+            half3 BandedLight(Light light, float3 normalWS, float strength)
             {
-                half facing = saturate(dot(normalWS, light.direction)) * light.distanceAttenuation * light.shadowAttenuation;
+                float facing = saturate(dot(normalWS, light.direction)) * min(light.distanceAttenuation * strength, MaxReach) * light.shadowAttenuation;
 
                 // any spot turned toward the light gets at least the first band
                 half banded = ceil(saturate(facing) * _Bands - BandEdge) / _Bands;
@@ -94,7 +99,7 @@ Shader "Clockwork Heist/Toon"
 
                 // the sun or moon with its shadows
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
-                half3 lighting = BandedLight(mainLight, normalWS);
+                half3 lighting = BandedLight(mainLight, normalWS, 1.0);
 
                 // lamps and other small lights
                 #if defined(_ADDITIONAL_LIGHTS)
@@ -105,7 +110,8 @@ Shader "Clockwork Heist/Toon"
                 uint lightCount = GetAdditionalLightsCount();
                 LIGHT_LOOP_BEGIN(lightCount)
                     Light light = GetAdditionalLight(lightIndex, input.positionWS, half4(1, 1, 1, 1));
-                    lighting += BandedLight(light, normalWS);
+                    float strength = max(light.color.r, max(light.color.g, light.color.b));
+                    lighting += BandedLight(light, normalWS, strength);
                 LIGHT_LOOP_END
                 #endif
 
@@ -114,8 +120,8 @@ Shader "Clockwork Heist/Toon"
                 lighting /= max(brightness, 1);
                 brightness = min(brightness, 1);
 
-                // ambient keeps dark areas from going black and the dark tint only adds where it is dark
-                half3 total = SampleSH(normalWS) + lighting + _DarkTint.rgb * (1 - brightness);
+                // ambient keeps dark areas from going black and the shadow tint only adds where no light reaches
+                half3 total = SampleSH(normalWS) + lighting + _ShadowTint.rgb * (1 - brightness);
                 return half4(albedo * total, 1);
             }
             ENDHLSL

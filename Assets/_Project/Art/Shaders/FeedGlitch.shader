@@ -50,6 +50,8 @@ Shader "Clockwork Heist/FeedGlitch"
             static const float SnowAmount = 0.85; // how much static covers the picture at full glitch
             static const float ScanlineDark = 0.3; // how dark every other line gets
             static const float FlickerSize = 0.5; // how much the brightness jumps
+            static const float NightGain = 4.0; // how much the night vision lifts dark parts while white stays white
+            static const half3 NightGreen = half3(0.55, 1.0, 0.6); // phosphor green of the night vision
 
             // a repeatable random number from 0 to 1 for any point
             float Hash(float2 p)
@@ -88,6 +90,10 @@ Shader "Clockwork Heist/FeedGlitch"
                 half green = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).g;
                 half blue = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv - float2(split, 0.0)).b;
                 half3 color = half3(red, green, blue);
+
+                // night vision lifts dark parts the most so shadowed props show and lit ones never wash out then paints it green
+                half light = dot(color, half3(0.2126, 0.7152, 0.0722)) * NightGain;
+                color = saturate(light / (1.0 + light) * (1.0 + NightGain) / NightGain) * NightGreen;
 
                 // snow on the feed pixel grid
                 float snow = Hash(floor(input.uv * FeedSize) + frame);

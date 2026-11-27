@@ -34,7 +34,7 @@ public class EnemySenses : MonoBehaviour, ICheckpointState
         GameObject player = GameObject.FindWithTag("Player");
         playerStealth = player.GetComponent<PlayerStealth>();
         playerBody = player.GetComponent<CharacterController>();
-        sightMask = ~LayerMask.GetMask("Player", "Enemy", "LightVolume", "Ignore Raycast");
+        sightMask = ~LayerMask.GetMask("Player", "Enemy", "ShadowVolume", "Ignore Raycast");
     }
 
     // a guard that wakes back up starts with an empty meter

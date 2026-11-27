@@ -28,7 +28,7 @@ public class GadgetThrower : MonoBehaviour
     private void Awake()
     {
         inventory = GetComponent<PlayerInventory>();
-        solidMask = ~LayerMask.GetMask("Player", "LightVolume", "Ignore Raycast");
+        solidMask = ~LayerMask.GetMask("Player", "ShadowVolume", "Ignore Raycast");
         arcLine.enabled = false;
     }
 

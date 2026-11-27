@@ -17,7 +17,7 @@ public class Dart : MonoBehaviour
     // build the mask
     private void Awake()
     {
-        hitMask = ~LayerMask.GetMask("Player", "LightVolume", "Ignore Raycast");
+        hitMask = ~LayerMask.GetMask("Player", "ShadowVolume", "Ignore Raycast");
     }
 
     // sends the dart off from a point at a launch velocity

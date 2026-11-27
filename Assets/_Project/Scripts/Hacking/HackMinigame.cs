@@ -66,7 +66,7 @@ public class HackMinigame : MonoBehaviour
         timerDial.SetActive(false);
         feed.texture = feedTexture;
         viewCamera = tablet.GetComponentInParent<Camera>();
-        clickMask = ~LayerMask.GetMask("Player", "LightVolume", "Ignore Raycast");
+        clickMask = ~LayerMask.GetMask("Player", "ShadowVolume", "Ignore Raycast");
         Shader.SetGlobalFloat(GlitchId, 0f);
     }
 

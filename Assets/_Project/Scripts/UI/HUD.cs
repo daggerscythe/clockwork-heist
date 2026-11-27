@@ -9,6 +9,7 @@ public class HUD : MonoBehaviour
     [SerializeField] private PlayerInventory inventory;
     [SerializeField] private PlayerInteract interact;
     [SerializeField] private AbilityWheel wheel;
+    [SerializeField] private BlinkAbility blink;
     [SerializeField] private Image healthFill;
     [SerializeField] private TMP_Text coinsText;
     [SerializeField] private GameObject promptPlate; // smoked glass behind the prompt
@@ -24,6 +25,7 @@ public class HUD : MonoBehaviour
     [SerializeField] private float hintTime = 8f; // real s a tip stays up
     [SerializeField, TextArea] private string menuNote = "You can access all notes in the menu (Esc)."; // shown once after the first note
     [SerializeField] private NotePopup notePopup; // card that stops the game for a tutorial note
+    [SerializeField] private string cancelText = "(Left Click) Cancel Teleport"; // prompt while aiming teleport
 
     private const string CountColor = "#F0C478"; // amber for gadget counts
     private static bool menuNoteDone; // the menu note shows once each time the game starts
@@ -61,11 +63,16 @@ public class HUD : MonoBehaviour
 
         coinsText.text = inventory.Coins.ToString();
 
+        // while aiming teleport the prompt says how to cancel in place of what e does
+        bool aiming = blink.IsAiming;
+        string prompt = aiming ? cancelText : interact.Prompt;
+        bool promptHasKey = !aiming && interact.PromptHasKey;
+
         // the prompt hides with the crosshair so menus and the hack screen stay clean
-        bool showPrompt = CrosshairVisible && interact.Prompt != "";
+        bool showPrompt = CrosshairVisible && prompt != "";
         promptPlate.SetActive(showPrompt);
-        promptKey.SetActive(interact.PromptHasKey);
-        promptText.text = interact.Prompt;
+        promptKey.SetActive(promptHasKey);
+        promptText.text = prompt;
 
         // what right click uses and how many are left
         Ability picked = wheel.Selected;
@@ -90,6 +97,6 @@ public class HUD : MonoBehaviour
         }
 
         crosshair.SetActive(CrosshairVisible);
-        crosshairRing.SetActive(CrosshairVisible && interact.PromptHasKey);
+        crosshairRing.SetActive(CrosshairVisible && promptHasKey);
     }
 }

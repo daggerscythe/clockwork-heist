@@ -20,7 +20,7 @@ public class MeleeController : MonoBehaviour
     private void Awake()
     {
         player = GetComponent<PlayerController>();
-        hitMask = ~LayerMask.GetMask("Player", "LightVolume", "Ignore Raycast");
+        hitMask = ~LayerMask.GetMask("Player", "ShadowVolume", "Ignore Raycast");
     }
 
     // input is created in the player controller awake so it is read here

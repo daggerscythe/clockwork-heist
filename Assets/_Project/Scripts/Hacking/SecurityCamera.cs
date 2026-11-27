@@ -26,6 +26,9 @@ public class SecurityCamera : MonoBehaviour, ICheckpointState
     private PlayerStealth playerStealth;
     private CharacterController playerBody;
     private Material coneMaterial; // this camera's own copy so cameras color their cones apart
+    private Mesh cone; // the see through cone that gets cut short at walls every frame
+    private Vector3[] coneVertices; // tip then the ring in lens space
+    private Vector3[] coneDirections; // lens space direction of each ring edge at full length
     private int sightMask; // things that block the view
     private int enemyMask; // only guards
     private float sweepClock; // s into the sweep
@@ -60,10 +63,11 @@ public class SecurityCamera : MonoBehaviour, ICheckpointState
         GameObject player = GameObject.FindWithTag("Player");
         playerStealth = player.GetComponent<PlayerStealth>();
         playerBody = player.GetComponent<CharacterController>();
-        sightMask = ~LayerMask.GetMask("Player", "Enemy", "LightVolume", "Ignore Raycast", "Interactable");
+        sightMask = ~LayerMask.GetMask("Player", "Enemy", "ShadowVolume", "Ignore Raycast", "Interactable");
         enemyMask = LayerMask.GetMask("Enemy");
 
-        lens.mesh = BuildCone();
+        cone = BuildCone();
+        lens.mesh = cone;
         coneMaterial = lens.GetComponent<MeshRenderer>().material;
         coneMaterial.color = calmColor;
         feedCamera.enabled = false;
@@ -225,6 +229,22 @@ public class SecurityCamera : MonoBehaviour, ICheckpointState
         return baseTime * playerStealth.DetectTimeMultiplier;
     }
 
+    // cuts every edge of the cone where it hits a wall or floor so it never shows through to the next room
+    private void LateUpdate()
+    {
+        Vector3 eye = lens.transform.position;
+        for (int i = 0; i < coneDirections.Length; i++)
+        {
+            Vector3 direction = lens.transform.TransformDirection(coneDirections[i]).normalized;
+            float length = settings.cameraRange;
+            if (Physics.Raycast(eye, direction, out RaycastHit hit, length, sightMask, QueryTriggerInteraction.Ignore))
+                length = hit.distance;
+            coneVertices[i + 1] = lens.transform.InverseTransformPoint(eye + direction * length);
+        }
+        cone.vertices = coneVertices;
+        cone.RecalculateBounds();
+    }
+
     // a cone with its tip at the lens whose edges are as long as the camera range
     private Mesh BuildCone()
     {
@@ -233,18 +253,21 @@ public class SecurityCamera : MonoBehaviour, ICheckpointState
         float length = settings.cameraRange * Mathf.Cos(half);
 
         // point 0 is the tip at the lens and the rest make the ring at the far end
-        Vector3[] vertices = new Vector3[ConeSides + 1];
+        coneVertices = new Vector3[ConeSides + 1];
+        coneDirections = new Vector3[ConeSides];
         int[] triangles = new int[ConeSides * 3];
         for (int i = 0; i < ConeSides; i++)
         {
             float angle = i * 2f * Mathf.PI / ConeSides;
-            vertices[i + 1] = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, length);
+            coneVertices[i + 1] = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, length);
+            coneDirections[i] = coneVertices[i + 1] / settings.cameraRange;
             triangles[i * 3] = 0;
             triangles[i * 3 + 1] = i + 1;
             triangles[i * 3 + 2] = (i + 1) % ConeSides + 1;
         }
 
-        Mesh mesh = new Mesh { name = "CameraCone", vertices = vertices, triangles = triangles };
+        Mesh mesh = new Mesh { name = "CameraCone", vertices = coneVertices, triangles = triangles };
+        mesh.MarkDynamic();
         mesh.RecalculateBounds();
         return mesh;
     }

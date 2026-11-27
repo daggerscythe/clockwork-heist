@@ -10,11 +10,14 @@ public class SettingsPanel : MonoBehaviour
     [SerializeField] private TMP_Text volumeText;
     [SerializeField] private Slider sensitivitySlider;
     [SerializeField] private TMP_Text sensitivityText;
+    [SerializeField] private Slider brightnessSlider;
+    [SerializeField] private TMP_Text brightnessText;
     [SerializeField] private Toggle unlimitedGadgetsToggle;
     [SerializeField] private Toggle unlimitedHealthToggle;
 
     private const float MaxVolume = 100f; // the volume slider goes from 0 to this
     private const float SensitivityStep = 0.05f; // the sensitivity slider snaps to this
+    private const float BrightnessStep = 0.05f; // the brightness slider snaps to this
 
     // sets the slider ranges and listens to every row
     private void Awake()
@@ -25,10 +28,14 @@ public class SettingsPanel : MonoBehaviour
         sensitivitySlider.minValue = GameOptions.MinSensitivity;
         sensitivitySlider.maxValue = GameOptions.MaxSensitivity;
         sensitivitySlider.wholeNumbers = false;
+        brightnessSlider.minValue = GameOptions.MinBrightness;
+        brightnessSlider.maxValue = GameOptions.MaxBrightness;
+        brightnessSlider.wholeNumbers = false;
 
         pixelationToggle.onValueChanged.AddListener(GameOptions.SetPixelation);
         volumeSlider.onValueChanged.AddListener(OnVolume);
         sensitivitySlider.onValueChanged.AddListener(OnSensitivity);
+        brightnessSlider.onValueChanged.AddListener(OnBrightness);
         unlimitedGadgetsToggle.onValueChanged.AddListener(GameOptions.SetUnlimitedGadgets);
         unlimitedHealthToggle.onValueChanged.AddListener(GameOptions.SetUnlimitedHealth);
     }
@@ -39,6 +46,7 @@ public class SettingsPanel : MonoBehaviour
         pixelationToggle.SetIsOnWithoutNotify(GameOptions.Pixelation);
         volumeSlider.SetValueWithoutNotify(Mathf.Round(GameOptions.Volume * MaxVolume));
         sensitivitySlider.SetValueWithoutNotify(GameOptions.Sensitivity);
+        brightnessSlider.SetValueWithoutNotify(GameOptions.Brightness);
         unlimitedGadgetsToggle.SetIsOnWithoutNotify(GameOptions.UnlimitedGadgets);
         unlimitedHealthToggle.SetIsOnWithoutNotify(GameOptions.UnlimitedHealth);
         ShowNumbers();
@@ -60,10 +68,20 @@ public class SettingsPanel : MonoBehaviour
         ShowNumbers();
     }
 
+    // the brightness slider moved and snaps to neat steps
+    private void OnBrightness(float value)
+    {
+        float snapped = Mathf.Round(value / BrightnessStep) * BrightnessStep;
+        brightnessSlider.SetValueWithoutNotify(snapped);
+        GameOptions.SetBrightness(snapped);
+        ShowNumbers();
+    }
+
     // the numbers next to the sliders
     private void ShowNumbers()
     {
         volumeText.text = Mathf.RoundToInt(GameOptions.Volume * MaxVolume).ToString();
         sensitivityText.text = GameOptions.Sensitivity.ToString("0.00");
+        brightnessText.text = Mathf.RoundToInt(GameOptions.Brightness * 100f) + "%";
     }
 }

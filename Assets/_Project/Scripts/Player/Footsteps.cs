@@ -20,7 +20,7 @@ public class Footsteps : MonoBehaviour
     // build the mask
     private void Awake()
     {
-        floorMask = ~LayerMask.GetMask("Player", "Enemy", "LightVolume", "Ignore Raycast", "Interactable");
+        floorMask = ~LayerMask.GetMask("Player", "Enemy", "ShadowVolume", "Ignore Raycast", "Interactable");
     }
 
     // start counting from here after being carried dropped or switched back on

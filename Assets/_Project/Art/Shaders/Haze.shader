@@ -19,6 +19,9 @@ Shader "Clockwork Heist/Haze"
             // 0 means no haze and 1 means full haze and the camouflage script sets it
             float _HazeStrength;
 
+            // the brightness setting where 1 is normal and above 1 lifts the dark parts and game options sets it
+            float _Brightness;
+
             static const float WobbleSize = 0.008; // part of the screen the edges can bend
             static const float BigWaves = 23.0; // large ripples across the screen
             static const float SmallWaves = 61.0; // small ripples laid over the large ones
@@ -45,7 +48,12 @@ Shader "Clockwork Heist/Haze"
 
                 half3 first = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv + Ripple(uv, _Time.y) * size).rgb;
                 half3 second = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv + Ripple(uv, _Time.y + DoubleGap) * size).rgb;
-                return half4((first + second) * 0.5, 1.0);
+                half3 color = (first + second) * 0.5;
+
+                // the brightness setting bends the curve so dark parts lift and white stays white
+                float brightness = _Brightness > 0.0 ? _Brightness : 1.0;
+                color = pow(max(color, 0.0), 1.0 / brightness);
+                return half4(color, 1.0);
             }
             ENDHLSL
         }

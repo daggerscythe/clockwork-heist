@@ -27,7 +27,7 @@ public abstract class ThrownGadget : MonoBehaviour
     // build the mask and find the player
     protected virtual void Awake()
     {
-        solidMask = ~LayerMask.GetMask("Player", "LightVolume", "Ignore Raycast");
+        solidMask = ~LayerMask.GetMask("Player", "ShadowVolume", "Ignore Raycast");
         playerObject = GameObject.FindWithTag("Player");
         inventory = playerObject.GetComponent<PlayerInventory>();
     }

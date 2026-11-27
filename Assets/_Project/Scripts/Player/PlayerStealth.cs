@@ -6,9 +6,11 @@ public class PlayerStealth : MonoBehaviour
 {
     [SerializeField] private GameSettings settings;
 
+    private const float ChestProbe = 0.1f; // m radius of the shadow check at the chest
+
     private PlayerController player;
     private CharacterController controller;
-    private int lightMask; // only light volumes
+    private int shadowMask; // only shadow volumes
 
     // how far away enemies can hear player
     public float NoiseRadius { get; private set; }
@@ -20,7 +22,7 @@ public class PlayerStealth : MonoBehaviour
     {
         player = GetComponent<PlayerController>();
         controller = GetComponent<CharacterController>();
-        lightMask = LayerMask.GetMask("LightVolume");
+        shadowMask = LayerMask.GetMask("ShadowVolume");
     }
 
     // work out the noise and visibility every frame
@@ -42,21 +44,20 @@ public class PlayerStealth : MonoBehaviour
         return settings.noiseWalk;
     }
 
-    // darkness and crouching make the player slower to spot and sprinting makes them faster
+    // shadow and crouching make the player slower to spot and sprinting makes them faster
     private float GetDetectTimeMultiplier()
     {
-        float multiplier = IsInLight() ? 1f : settings.darkTimeMultiplier;
+        float multiplier = IsInShadow() ? settings.darkTimeMultiplier : 1f;
         if (player.IsCrouching) multiplier *= settings.crouchTimeMultiplier;
         else if (player.IsSprinting) multiplier *= settings.sprintTimeMultiplier;
         return multiplier;
     }
 
-    // true when any part of the player capsule touches a light volume
-    private bool IsInLight()
+    // true when the middle of the player is inside a shadow volume
+    private bool IsInShadow()
     {
-        Vector3 bottom = transform.position + Vector3.up * controller.radius;
-        Vector3 top = transform.position + Vector3.up * (controller.height - controller.radius);
-        return Physics.CheckCapsule(bottom, top, controller.radius, lightMask, QueryTriggerInteraction.Collide);
+        Vector3 chest = transform.position + Vector3.up * (controller.height / 2f);
+        return Physics.CheckSphere(chest, ChestProbe, shadowMask, QueryTriggerInteraction.Collide);
     }
 
     // draws the noise ring in the scene view when selected

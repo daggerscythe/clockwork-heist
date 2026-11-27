@@ -15,6 +15,9 @@ public class GameSettings : ScriptableObject
     public float lookSensitivity = 0.1f;
     public float airAcceleration = 4f; // m/s^2
     public float jumpHeight = 1f; // m
+    public float vaultHeight = 2f; // m highest ledge above the feet the player can climb onto
+    public float vaultReach = 0.6f; // m in front of the capsule a ledge can be grabbed
+    public float vaultTime = 0.4f; // s one climb takes
     public float leanDistance = 0.5f; // m the camera slides sideways
     public float leanAngle = 10f; // degrees the camera tilts
 
@@ -49,7 +52,7 @@ public class GameSettings : ScriptableObject
     public float detectTimeClose = 0.5f; // s
     public float detectTimeFar = 1.5f; // s
     public float closeDistance = 5f; // m
-    public float darkTimeMultiplier = 2f; // in dark zone detection takes 2x longer
+    public float darkTimeMultiplier = 2f; // in shadow detection takes 2x longer
     public float crouchTimeMultiplier = 1.5f;
     public float sprintTimeMultiplier = 0.7f;
     public float meterDrainPerSecond = 1f;

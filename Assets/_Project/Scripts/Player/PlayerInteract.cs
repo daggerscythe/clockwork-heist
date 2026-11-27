@@ -36,7 +36,7 @@ public class PlayerInteract : MonoBehaviour
     {
         player = GetComponent<PlayerController>();
         inventory = GetComponent<PlayerInventory>();
-        lookMask = ~LayerMask.GetMask("Player", "LightVolume", "Ignore Raycast");
+        lookMask = ~LayerMask.GetMask("Player", "ShadowVolume", "Ignore Raycast");
         ShowCarried(null);
     }
 

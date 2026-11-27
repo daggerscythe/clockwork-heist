@@ -23,6 +23,12 @@ public static class TeleportSpot
         return fits;
     }
 
+    // true when a capsule of this size fits with its center at this point
+    public static bool FitsAt(Vector3 center, float radius, float height, int solidMask)
+    {
+        return Fits(center, radius, height / 2f, solidMask);
+    }
+
     // true when the capsule at this center touches nothing
     private static bool Fits(Vector3 center, float radius, float halfHeight, int solidMask)
     {
